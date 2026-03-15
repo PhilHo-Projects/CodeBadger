@@ -1,0 +1,62 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, monospace;
+
+  --color-app: var(--bg-app);
+  --color-panel: var(--bg-panel);
+  --color-editor: var(--bg-editor);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-syntax-keyword: var(--syntax-keyword);
+  --color-syntax-type: var(--syntax-type);
+  --color-syntax-string: var(--syntax-string);
+  --color-syntax-number: var(--syntax-number);
+  --color-syntax-function: var(--syntax-function);
+  --color-state-correct: var(--state-correct);
+  --color-state-error: var(--state-error);
+  --color-accent: var(--accent);
+
+  --shadow-panel: 0 28px 70px rgba(5, 7, 16, 0.45);
+  --shadow-editor: 0 35px 90px rgba(5, 7, 16, 0.55);
+}
+
+:root {
+  --bg-app: #090d16;
+  --bg-panel: rgba(17, 23, 37, 0.88);
+  --bg-editor: #101522;
+  --text-main: #dce5f5;
+  --text-muted: #8290ab;
+  --syntax-keyword: #b48cf2;
+  --syntax-type: #e4c07b;
+  --syntax-string: #88d498;
+  --syntax-number: #79c8ff;
+  --syntax-function: #f2df8f;
+  --state-correct: #4ad295;
+  --state-error: #f07b89;
+  --accent: #49bdff;
+}
+
+html {
+  background: var(--bg-app);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(73, 189, 255, 0.1), transparent 32%),
+    linear-gradient(180deg, #090d16 0%, #090d16 40%, #080c13 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: rgba(73, 189, 255, 0.28);
+  color: #f4f8ff;
+}

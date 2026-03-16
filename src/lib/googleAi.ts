@@ -1,6 +1,6 @@
 import type { Difficulty, Language, Snippet, TopicFilter } from "./types";
 
-const STORAGE_KEY = "codedagger.google-ai-settings";
+const STORAGE_KEY = "codebadger.google-ai-settings";
 const DEFAULT_MODEL = "gemini-2.5-flash";
 
 type StoredGoogleAiSettings = {

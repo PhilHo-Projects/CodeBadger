@@ -1,6 +1,6 @@
-# CodeDagger
+# CodeBadger
 
-CodeDagger is a one-page Astro app for typing real code snippets in an IDE-style shell. The current build is local-first: it ships curated fallback snippet sets for C#, C++, TypeScript, and Python, and it can optionally generate fresh snippets with Google AI when you save an API key locally in the browser.
+CodeBadger is a one-page Astro app for typing real code snippets in an IDE-style shell. The current build is local-first: it ships curated fallback snippet sets for C#, C++, TypeScript, and Python, and it can optionally generate fresh snippets with Google AI when you save an API key locally in the browser.
 
 ## Local setup
 

@@ -73,7 +73,7 @@ export function checkRecall(lessonId: string, answer: string) {
   return {
     passed,
     message: passed
-      ? "That’s the construct. You recalled it."
-      : "Check the requested names, values, and syntax. Use the hint if you’re stuck.",
+      ? "Correct."
+      : "Answer does not match the requested code. Check the names, values, and syntax.",
   };
 }

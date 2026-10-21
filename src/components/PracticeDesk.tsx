@@ -28,16 +28,11 @@ export function SessionBuilder({
   return (
     <section className="session-builder panel">
       <div className="section-heading">
-        <span className="eyebrow accent">THE DAILY LAP</span>
+        <h2>Create a session</h2>
         <Icon name="bolt" size={20} />
       </div>
-      <h2>
-        A little practice.
-        <br />A lot less rust.
-      </h2>
       <p>
-        Recall a pattern, trace an output, fix a bug. Reviews and first attempts
-        come before familiar reps.
+        Due reviews and new exercises are selected before completed exercises.
       </p>
       <div className="builder-fields">
         <label className="select-label">
@@ -53,7 +48,7 @@ export function SessionBuilder({
                 {LANGUAGE_META[l].label}
               </option>
             ))}
-            <option value="all">Mix all four</option>
+            <option value="all">All languages</option>
           </select>
         </label>
         <label className="select-label">
@@ -64,9 +59,9 @@ export function SessionBuilder({
               setCount(Number(e.target.value) as SessionOptions["count"])
             }
           >
-            <option value={3}>3 reps · a quick lap</option>
-            <option value={6}>6 reps · settle in</option>
-            <option value={10}>10 reps · interview warm-up</option>
+            <option value={3}>3 exercises</option>
+            <option value={6}>6 exercises</option>
+            <option value={10}>10 exercises</option>
           </select>
         </label>
         <label className="select-label">
@@ -86,14 +81,15 @@ export function SessionBuilder({
         className="button button-primary"
         onClick={() => onStart({ language: scope, count, mode })}
       >
-        Start my session
+        Start session
         <Icon name="arrow" size={16} />
       </button>
-      <span className="builder-note">
-        {available < count
-          ? `${available} unique ${mode} reps available; this session uses all ${available}.`
-          : "No AI key. No setup. Just you and the keyboard."}
-      </span>
+      {available < count && (
+        <span className="builder-note">
+          {available} exercises available for this selection; the session will
+          include all {available}.
+        </span>
+      )}
     </section>
   );
 }
@@ -120,32 +116,18 @@ export function PracticeDesk({
   const due = dueReviews(progress, now).length;
   return (
     <>
-      <div className="page-heading desk-heading">
+      <div className="page-heading">
         <div>
-          <span className="eyebrow accent">YOUR PRACTICE DESK</span>
-          <h1>
-            You know this.
-            <br />
-            <span className="heading-muted">Let your hands catch up.</span>
-          </h1>
-          <p>
-            Small coding reps for the moment the interviewer says,
-            <br className="desktop-break" /> “Go ahead and write it.”
-          </p>
+          <h1>Practice</h1>
         </div>
-        <div className="desk-stamp">
-          <span>{String(recalled).padStart(2, "0")}</span>
-          <small>
-            OF {lessons.length} CONCEPTS
-            <br />
-            RECALLED UNAIDED
-          </small>
-        </div>
+        <span className="small-badge">
+          {recalled}/{lessons.length} concepts recalled
+        </span>
       </div>
       <div className="desk-grid">
         <div className="desk-left">
           <div className="section-heading">
-            <h2>Pick your language.</h2>
+            <h2>Language tracks</h2>
             <span className="eyebrow">4 TRACKS · 48 LESSONS</span>
           </div>
           <div className="track-grid">
@@ -186,8 +168,7 @@ export function PracticeDesk({
           </div>
           <button className="resume-strip" onClick={onResume}>
             <span>
-              <span className="eyebrow">PICK UP THE THREAD</span>
-              <strong>Continue {LANGUAGE_META[language].label}</strong>
+              <strong>Continue {LANGUAGE_META[language].label} lessons</strong>
             </span>
             <Icon name="arrow" size={19} />
           </button>
@@ -196,15 +177,10 @@ export function PracticeDesk({
       </div>
       <div className="desk-bottom">
         <button className="scenario-teaser" onClick={onScenarios}>
-          <span className="eyebrow accent">THE SCENARIO LAB</span>
-          <h2>
-            Same problem.
-            <br />
-            Different muscle memory.
-          </h2>
+          <h2>Scenarios</h2>
           <p>
-            Checkout totals, log counters, duplicates and binary search. Predict
-            it, repair it, then recall it.
+            Practice filtering, counting, sets, loop boundaries, optional
+            values, and binary search.
           </p>
           <span className="text-link">
             Explore {scenarios.length} scenarios
@@ -212,19 +188,13 @@ export function PracticeDesk({
           </span>
         </button>
         <div className="review-note notes-paper">
-          <span className="notes-label">A NOTE FOR NEXT TIME</span>
           <h2>
-            {due
-              ? `${due} ${due === 1 ? "rep is" : "reps are"} ready to revisit.`
-              : "Remembering takes a few returns."}
+            {due} {due === 1 ? "review" : "reviews"} due
           </h2>
           <p>
-            Unaided recalls return after 1, 3, 7 and 14 days. Mistakes and
-            guided reps come back sooner.
+            Unaided answers are scheduled for review after 1, 3, 7, and 14 days.
+            Incorrect answers and attempts with hints are due immediately.
           </p>
-          <span className="notes-bottom">
-            A few good reps. Then go build. ↳
-          </span>
         </div>
       </div>
     </>

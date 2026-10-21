@@ -45,8 +45,7 @@ export function ApiSettingsModal({
       >
         <div className="dialog-heading">
           <div>
-            <span className="eyebrow">Optional extras</span>
-            <h2 id="settings-title">Fresh drills with Google AI</h2>
+            <h2 id="settings-title">Google AI settings</h2>
           </div>
           <button
             type="button"

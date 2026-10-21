@@ -43,9 +43,8 @@ export function GapChallenge({ lesson, onResult, onNext }: Props) {
   return (
     <div>
       <div className="exercise-intro">
-        <span className="eyebrow">A little less help</span>
-        <h2>Fill in what’s missing.</h2>
-        <p>The structure is here. Supply the important pieces.</p>
+        <h2>Complete the missing code.</h2>
+        <p>Enter each missing value, keyword, or expression.</p>
       </div>
       <form
         onSubmit={(event) => {
@@ -97,7 +96,7 @@ export function GapChallenge({ lesson, onResult, onNext }: Props) {
             role="status"
           >
             {passed
-              ? "All the pieces fit. Now try it without the scaffold."
+              ? "All gaps are correct."
               : `${correct.length} of ${lesson.gaps.length} correct. Check the highlighted gaps.`}
           </div>
         )}
@@ -125,7 +124,7 @@ export function GapChallenge({ lesson, onResult, onNext }: Props) {
               className="button button-primary"
               onClick={onNext}
             >
-              Try recall
+              Continue to recall
               <Icon name="arrow" size={16} />
             </button>
           ) : (
@@ -164,7 +163,9 @@ export function RecallChallenge({
     setLastChecked(answer);
     setPassed(result.passed);
     setFeedback(
-      result.passed && assisted ? "Guided rep complete." : result.message,
+      result.passed && assisted
+        ? "Correct. Completed with assistance."
+        : result.message,
     );
     onResult({
       lessonId: lesson.id,
@@ -211,15 +212,13 @@ export function RecallChallenge({
   return (
     <div>
       <div className="exercise-intro">
-        <span className="eyebrow">From your head to your hands</span>
-        <h2>Your turn. No peeking.</h2>
-        <p>{lesson.recall.prompt}</p>
+        <h2>{lesson.recall.prompt}</h2>
       </div>
       <p className="recall-context">{lesson.recall.context}</p>
       <div className="code-window">
         <div className="code-chrome">
           <span className="code-file">
-            <span className="file-icon">{"{}"}</span>your-turn.
+            <span className="file-icon">{"{}"}</span>answer.
             {LANGUAGE_META[lesson.language].extension}
           </span>
           <span className="code-language">Recall</span>
@@ -259,7 +258,7 @@ export function RecallChallenge({
           {passed && (
             <p>
               {assisted
-                ? "Guided rep saved. Retry without hints to mark this concept recalled."
+                ? "Retry without hints or the revealed answer to mark this concept recalled."
                 : lesson.recall.explanation}
             </p>
           )}
@@ -267,7 +266,7 @@ export function RecallChallenge({
       )}
       {assisted && (
         <div className="hint-box">
-          <span className="eyebrow">A nudge</span>
+          <span className="eyebrow">Hint</span>
           <p>{lesson.recall.hint}</p>
           {solution && (
             <CodeBlock

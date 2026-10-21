@@ -34,7 +34,7 @@ function ScenarioExercise({
   exercise: e,
   onResult,
   onNext,
-  nextLabel = "Next rep",
+  nextLabel = "Next exercise",
 }: Props) {
   const [answer, setAnswer] = useState(e.starter);
   const [checks, setChecks] = useState(0);
@@ -68,10 +68,10 @@ function ScenarioExercise({
     setFeedback(
       success
         ? assisted
-          ? "Guided rep complete."
-          : "That’s it. Rep saved."
+          ? "Correct. Completed with assistance."
+          : "Correct."
         : e.kind === "predict"
-          ? "Trace the values again, then try another output."
+          ? "Incorrect output. Trace the variable values and check the loop boundaries."
           : "Check the requested change and keep the surrounding code. Formatting differences are accepted.",
     );
     onResult(result(success, checks + 1));
@@ -139,7 +139,7 @@ function ScenarioExercise({
         <div className="code-window">
           <div className="code-chrome">
             <span className="code-file">
-              {e.kind === "repair" ? "repair" : "your-turn"}.
+              {e.kind === "repair" ? "repair" : "answer"}.
               {LANGUAGE_META[e.language].extension}
             </span>
             <span className="code-language">
@@ -189,7 +189,7 @@ function ScenarioExercise({
       )}
       {assisted && (
         <div className="hint-box">
-          <span className="eyebrow">A nudge</span>
+          <span className="eyebrow">Hint</span>
           <p>{e.hint}</p>
           {revealed &&
             (e.kind === "predict" ? (
@@ -249,7 +249,7 @@ function ScenarioExercise({
               onNext();
             }}
           >
-            Skip this rep <Icon name="arrow" size={13} />
+            Skip exercise <Icon name="arrow" size={13} />
           </button>
         )}
       </div>

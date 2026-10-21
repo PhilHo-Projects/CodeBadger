@@ -30,7 +30,7 @@ export function buildLessons(
         const id = `gap${gaps.length + 1}`;
         gaps.push({
           id,
-          label: `Missing piece ${gaps.length + 1}`,
+          label: `Code gap ${gaps.length + 1}`,
           answers: [answer],
           hint: seed.hint,
         });

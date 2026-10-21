@@ -35,11 +35,11 @@ import { TypingGame } from "./TypingGame";
 type View = "desk" | "learn" | "scenarios" | "quick" | "review" | "session";
 const NAV_KEY = "codebadger.workspace.v2";
 const nav = [
-  { view: "desk", label: "Practice desk", icon: "bolt" },
-  { view: "learn", label: "Learning path", icon: "book" },
-  { view: "scenarios", label: "Scenario lab", icon: "code" },
-  { view: "quick", label: "Quick drills", icon: "code" },
-  { view: "review", label: "Your progress", icon: "chart" },
+  { view: "desk", label: "Practice", icon: "bolt" },
+  { view: "learn", label: "Lessons", icon: "book" },
+  { view: "scenarios", label: "Scenarios", icon: "code" },
+  { view: "quick", label: "Typing drills", icon: "code" },
+  { view: "review", label: "Progress", icon: "chart" },
 ] as const;
 export function PracticeApp() {
   const [view, setView] = useState<View>("desk");
@@ -51,7 +51,7 @@ export function PracticeApp() {
   const [storageAvailable, setStorageAvailable] = useState(true);
   const [now, setNow] = useState(0);
   const [session, setSession] = useState<Exercise[]>([]);
-  const [sessionTitle, setSessionTitle] = useState("THE DAILY LAP");
+  const [sessionTitle, setSessionTitle] = useState("Mixed practice session");
   const [sessionId, setSessionId] = useState(0);
   const [sessionOptions, setSessionOptions] = useState<SessionOptions>({
     language: "cpp",
@@ -148,8 +148,12 @@ export function PracticeApp() {
     setSession(buildSession(progress, options, Date.now()));
     setSessionTitle(
       options.mode === "mixed"
-        ? "THE DAILY LAP"
-        : `${options.mode.toUpperCase()} SESSION`,
+        ? "Mixed practice session"
+        : {
+            recall: "Recall session",
+            predict: "Output prediction session",
+            repair: "Code repair session",
+          }[options.mode],
     );
     setSessionId((i) => i + 1);
     setView("session");
@@ -173,10 +177,7 @@ export function PracticeApp() {
           aria-label="CodeBadger home"
         >
           <BadgerMark />
-          <span>
-            codebadger
-            <span className="brand-caption">A little rust is normal.</span>
-          </span>
+          <span>codebadger</span>
         </button>
         <nav className="primary-nav" aria-label="Workspace">
           {nav.map((n) => (
@@ -191,7 +192,6 @@ export function PracticeApp() {
               {n.view === "review" && due > 0 && (
                 <span className="nav-count">{due}</span>
               )}
-              {n.view === "scenarios" && <span className="nav-tag">NEW</span>}
             </button>
           ))}
         </nav>
@@ -251,7 +251,7 @@ export function PracticeApp() {
           <p>
             {recalled
               ? `${recalled} of ${track.length} concepts recalled.`
-              : "One concept. A few good reps."}
+              : `0 of ${track.length} concepts recalled.`}
           </p>
           <span className="local-label">
             <i />
@@ -275,14 +275,14 @@ export function PracticeApp() {
           <div className="topbar-right">
             <span className="today-count">
               <i />
-              {today} {today === 1 ? "rep" : "reps"} today
+              {today} completed today
             </span>
             <button
               className="button button-warmup"
               onClick={() => start({ language, count: 3, mode: "mixed" })}
             >
               <Icon name="bolt" size={15} />
-              3-rep warm-up
+              Start 3 exercises
             </button>
           </div>
         </header>
@@ -290,7 +290,7 @@ export function PracticeApp() {
           {!storageAvailable && (
             <p className="notice" role="status">
               Browser storage is unavailable. You can keep practicing and export
-              a backup from Your progress before leaving.
+              a backup from Progress before leaving.
             </p>
           )}
           {view === "desk" && (
@@ -334,9 +334,8 @@ export function PracticeApp() {
             <>
               <div className="page-heading">
                 <div>
-                  <span className="eyebrow accent">HANDS ON. BRAIN ON.</span>
-                  <h1>Shake off the rust.</h1>
-                  <p>Five languages. Real code. One clean rep at a time.</p>
+                  <h1>Typing drills</h1>
+                  <p>Type each code snippet exactly as shown.</p>
                 </div>
                 <span className="small-badge">
                   {fallbackSnippets.length} curated drills
@@ -372,12 +371,6 @@ export function PracticeApp() {
             />
           )}
         </main>
-        <footer className="app-footer">
-          <span>Built for the part between “I know this” and typing it.</span>
-          <span>
-            Keep your hands in the loop.<span className="footer-cursor">_</span>
-          </span>
-        </footer>
       </div>
     </div>
   );

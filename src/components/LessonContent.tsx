@@ -18,8 +18,6 @@ export function LearnStep({
   return (
     <div className="learn-step">
       <div className="exercise-intro">
-        <span className="eyebrow">First, the idea</span>
-        <h2>{lesson.subtitle}</h2>
         <p>{lesson.intro}</p>
       </div>
       <CodeBlock
@@ -38,16 +36,13 @@ export function LearnStep({
       <div className="pitfall">
         <span aria-hidden="true">!</span>
         <div>
-          <strong>Watch for this</strong>
+          <strong>Common mistake</strong>
           <p>{lesson.pitfall}</p>
         </div>
       </div>
       <div className="exercise-actions">
-        <span className="muted small-text">
-          Read it once. Then give it a go.
-        </span>
         <button className="button button-primary" onClick={onNext}>
-          Type this pattern
+          Start typing exercise
           <Icon name="arrow" size={16} />
         </button>
       </div>
@@ -66,42 +61,14 @@ export function FieldNotes({
   stage: Stage;
   completed: Stage[];
 }) {
-  if (stage === "fill" || stage === "recall")
-    return (
-      <aside className="field-notes">
-        <div className="closed-notes">
-          <Icon name="book" size={24} />
-          <span className="eyebrow" style={{ display: "block", marginTop: 19 }}>
-            Notes closed
-          </span>
-          <h2>
-            {stage === "recall"
-              ? "You’ve seen it. Now trust your hands."
-              : "A few pieces are yours to find."}
-          </h2>
-          <p>
-            {stage === "recall"
-              ? "The example is tucked away for this rep. Try recalling the shape before reaching for a hint."
-              : "Use what you just practiced. Hints are there if you need a nudge."}
-          </p>
-          <p style={{ marginTop: 18 }}>
-            Using a hint saves a guided rep. An unaided recall marks the concept
-            learned.
-          </p>
-        </div>
-      </aside>
-    );
+  if (stage === "fill" || stage === "recall") return null;
   return (
     <aside className="field-notes">
       <div className="notes-paper">
         <div className="notes-top">
-          <span className="notes-label">THE FIELD NOTES</span>
-          <span>No. {String(lessonIndex + 1).padStart(2, "0")}</span>
+          <span className="notes-label">Language notes</span>
+          <span>Lesson {String(lessonIndex + 1).padStart(2, "0")}</span>
         </div>
-        <h2>
-          A pattern worth <br />
-          keeping.
-        </h2>
         <div className="notes-rule" />
         {lesson.points.map((point, index) => (
           <div className="note-point" key={point.title}>
@@ -112,10 +79,6 @@ export function FieldNotes({
             </div>
           </div>
         ))}
-        <div className="notes-bottom">
-          <span>Read → repeat → remember.</span>
-          <span aria-hidden="true">↳</span>
-        </div>
       </div>
       <div className="practice-recipe">
         <span className="eyebrow">This lesson</span>

@@ -3,9 +3,9 @@ import type { Lesson } from "../../lib/learning";
 const originalLessons: Omit<Lesson, "language">[] = [
   {
     id: "variables",
-    title: "Give a value a name.",
+    title: "Variables & types",
     subtitle: "Variables & types",
-    tag: "The building blocks",
+    tag: "Foundations",
     minutes: 3,
     intro:
       "A variable is a named place to keep a value. In C++, its type determines what it can hold and which operations make sense.",
@@ -19,7 +19,7 @@ const originalLessons: Omit<Lesson, "language">[] = [
         text: "Give local variables a value before reading them. Brace initialization also helps catch narrowing conversions.",
       },
       {
-        title: "Make intent clear",
+        title: "const and auto",
         text: "Use const for a value that should not change. auto deduces a type from its initializer.",
       },
     ],
@@ -56,7 +56,7 @@ const originalLessons: Omit<Lesson, "language">[] = [
   },
   {
     id: "conditions",
-    title: "Take the right branch.",
+    title: "Conditions & comparisons",
     subtitle: "Conditions & comparisons",
     tag: "Control flow",
     minutes: 3,
@@ -64,7 +64,7 @@ const originalLessons: Omit<Lesson, "language">[] = [
       "An if statement runs its body only when its condition is true. Comparisons turn values into a yes-or-no decision.",
     points: [
       {
-        title: "Ask a question",
+        title: "Comparison operators",
         text: "== compares equality. != compares inequality. >= includes the boundary value.",
       },
       {
@@ -76,12 +76,12 @@ const originalLessons: Omit<Lesson, "language">[] = [
         text: "&& means both must be true. || means at least one. ! reverses a boolean.",
       },
     ],
-    code: 'int score = 100;\nif (score >= 100)\n{\n    std::cout << "Level up";\n}\nelse\n{\n    std::cout << "Keep going";\n}',
-    output: "Level up",
+    code: 'int score = 100;\nif (score >= 100)\n{\n    std::cout << "Pass";\n}\nelse\n{\n    std::cout << "Fail";\n}',
+    output: "Pass",
     pitfall:
       "= assigns; == compares. An accidental assignment in a condition can compile and still do the wrong thing.",
     gapCode:
-      'if (score [[comparison]] 100)\n{\n    std::cout << "Level up";\n}\n[[otherwise]]\n{\n    std::cout << "Keep going";\n}',
+      'if (score [[comparison]] 100)\n{\n    std::cout << "Pass";\n}\n[[otherwise]]\n{\n    std::cout << "Fail";\n}',
     gaps: [
       {
         id: "comparison",
@@ -109,23 +109,23 @@ const originalLessons: Omit<Lesson, "language">[] = [
   },
   {
     id: "for-loops",
-    title: "Find your loop again.",
+    title: "For loops",
     subtitle: "For loops",
     tag: "Control flow",
     minutes: 4,
     intro:
-      "A for loop puts the setup, condition, and next step together. Reach for it when you know how you want to move through a sequence.",
+      "A for loop combines initialization, a condition, and an increment. Use it when you need an explicit loop counter.",
     points: [
       {
-        title: "Start somewhere",
+        title: "Initialize the counter",
         text: "int i = 0 runs once, before the loop. The counter is scoped to the loop.",
       },
       {
-        title: "Check before each lap",
+        title: "Check the loop condition",
         text: "i < 5 is checked before every iteration. Starting at zero, the values are 0, 1, 2, 3, 4.",
       },
       {
-        title: "Move forward",
+        title: "Increment the counter",
         text: "++i increments after the body. i++ works here too; both move to the next counter value.",
       },
     ],
@@ -169,7 +169,7 @@ const originalLessons: Omit<Lesson, "language">[] = [
   },
   {
     id: "while-loops",
-    title: "Keep going. Then stop.",
+    title: "While loops",
     subtitle: "While loops",
     tag: "Control flow",
     minutes: 3,
@@ -181,7 +181,7 @@ const originalLessons: Omit<Lesson, "language">[] = [
         text: "The condition is checked before the body. A false initial condition means zero iterations.",
       },
       {
-        title: "Change something",
+        title: "Update the loop condition",
         text: "The body should eventually make the condition false, unless an intentional break exits the loop.",
       },
       {
@@ -223,12 +223,12 @@ const originalLessons: Omit<Lesson, "language">[] = [
   },
   {
     id: "functions",
-    title: "Make a little machine.",
+    title: "Functions & return values",
     subtitle: "Functions & return values",
-    tag: "Reusable logic",
+    tag: "Functions",
     minutes: 4,
     intro:
-      "A function names a piece of behavior. Parameters bring values in; a return value sends a result back to its caller.",
+      "A function accepts parameters, executes statements, and can return a result to its caller.",
     points: [
       {
         title: "Describe the result",
@@ -275,15 +275,15 @@ const originalLessons: Omit<Lesson, "language">[] = [
   },
   {
     id: "strings",
-    title: "Get a handle on text.",
+    title: "Strings",
     subtitle: "Strings",
-    tag: "Everyday containers",
+    tag: "Collections",
     minutes: 3,
     intro:
       "std::string owns a sequence of characters. It can grow, be indexed, and expose common operations through member functions.",
     points: [
       {
-        title: "Ask the object",
+        title: "String member functions",
         text: "name.size() gives the number of char elements. name.length() is an equivalent spelling.",
       },
       {
@@ -291,7 +291,7 @@ const originalLessons: Omit<Lesson, "language">[] = [
         text: "The first character is name[0]. at(index) checks bounds and throws if the index is invalid.",
       },
       {
-        title: "Know what you count",
+        title: "String length in bytes",
         text: "For UTF-8 text, size() counts bytes, which may differ from the number of visible characters.",
       },
     ],
@@ -328,9 +328,9 @@ const originalLessons: Omit<Lesson, "language">[] = [
   },
   {
     id: "vectors",
-    title: "Leave room for one more.",
+    title: "Vectors",
     subtitle: "Vectors",
-    tag: "Everyday containers",
+    tag: "Collections",
     minutes: 4,
     intro:
       "std::vector is a dynamic sequence stored contiguously. It’s a useful default when the number of elements can change.",
@@ -380,9 +380,9 @@ const originalLessons: Omit<Lesson, "language">[] = [
   },
   {
     id: "maps",
-    title: "Find it by name.",
+    title: "Maps & lookups",
     subtitle: "Maps & lookups",
-    tag: "Everyday containers",
+    tag: "Collections",
     minutes: 4,
     intro:
       "A map associates a key with a value. std::unordered_map is a hash table; std::map keeps keys ordered.",

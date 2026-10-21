@@ -104,7 +104,7 @@ export function TypingGame({
       if (request.current !== controller) return;
       setSnippet(generated);
       setRound((value) => value + 1);
-      setMessage("Fresh drill ready. Generated code has not been compiled.");
+      setMessage("Drill generated. The code has not been compiled.");
     } catch (error) {
       if (request.current !== controller || controller.signal.aborted) return;
       const detail =
@@ -234,7 +234,7 @@ export function TypingGame({
       <div className="generator-strip">
         <div>
           <Icon name="bolt" size={16} />
-          <span>Want a fresh variation?</span>
+          <span>Generate a drill with Google AI</span>
         </div>
         <div className="inline-actions">
           <button

@@ -2,7 +2,7 @@ import { buildLessons } from "./build";
 export const cppExtraLessons = buildLessons("cpp", [
   {
     slug: "references",
-    title: "Edit the original, without copying it.",
+    title: "References & const",
     subtitle: "References & const",
     tag: "Memory model",
     intro:
@@ -31,7 +31,7 @@ export const cppExtraLessons = buildLessons("cpp", [
   },
   {
     slug: "range-for",
-    title: "Choose whether the loop copies.",
+    title: "Range-based loops",
     subtitle: "Range-based loops",
     tag: "Collections",
     intro:
@@ -54,7 +54,7 @@ export const cppExtraLessons = buildLessons("cpp", [
   },
   {
     slug: "algorithms",
-    title: "Use the right iterator range.",
+    title: "STL algorithms",
     subtitle: "STL algorithms",
     tag: "Algorithms",
     intro:
@@ -79,7 +79,7 @@ export const cppExtraLessons = buildLessons("cpp", [
   },
   {
     slug: "ownership",
-    title: "Give a resource one clear owner.",
+    title: "RAII & unique_ptr",
     subtitle: "RAII & unique_ptr",
     tag: "Memory model",
     intro:

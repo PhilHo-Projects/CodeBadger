@@ -2,7 +2,7 @@ import { buildLessons } from "./build";
 export const csharpLessons = buildLessons("csharp", [
   {
     slug: "variables",
-    title: "Start with a value and a type.",
+    title: "Variables & types",
     subtitle: "Variables & types",
     tag: "Foundations",
     intro:
@@ -36,7 +36,7 @@ export const csharpLessons = buildLessons("csharp", [
   },
   {
     slug: "loops",
-    title: "Visit each item once.",
+    title: "Loops & foreach",
     subtitle: "Loops & foreach",
     tag: "Control flow",
     intro:
@@ -69,7 +69,7 @@ export const csharpLessons = buildLessons("csharp", [
   },
   {
     slug: "functions",
-    title: "Keep one method easy to reason about.",
+    title: "Methods",
     subtitle: "Methods",
     tag: "Foundations",
     intro:
@@ -102,7 +102,7 @@ export const csharpLessons = buildLessons("csharp", [
   },
   {
     slug: "lists",
-    title: "Grow a collection deliberately.",
+    title: "Arrays & lists",
     subtitle: "Arrays & lists",
     tag: "Collections",
     intro:
@@ -134,7 +134,7 @@ export const csharpLessons = buildLessons("csharp", [
   },
   {
     slug: "dictionary",
-    title: "Look up without throwing.",
+    title: "Dictionaries",
     subtitle: "Dictionaries",
     tag: "Collections",
     intro:
@@ -164,7 +164,7 @@ export const csharpLessons = buildLessons("csharp", [
   },
   {
     slug: "nullable",
-    title: "Make absence visible.",
+    title: "Nullability",
     subtitle: "Nullability",
     tag: "Null safety",
     intro:
@@ -191,7 +191,7 @@ export const csharpLessons = buildLessons("csharp", [
   },
   {
     slug: "records",
-    title: "Describe data with value equality.",
+    title: "Records",
     subtitle: "Records",
     tag: "Data modelling",
     intro:
@@ -224,7 +224,7 @@ export const csharpLessons = buildLessons("csharp", [
   },
   {
     slug: "linq",
-    title: "Describe a query in small steps.",
+    title: "LINQ pipelines",
     subtitle: "LINQ pipelines",
     tag: "Collections",
     intro:
@@ -251,7 +251,7 @@ export const csharpLessons = buildLessons("csharp", [
   },
   {
     slug: "patterns",
-    title: "Express a decision as a value.",
+    title: "Pattern matching",
     subtitle: "Pattern matching",
     tag: "Control flow",
     intro:
@@ -265,20 +265,20 @@ export const csharpLessons = buildLessons("csharp", [
       ["Expression result", "Each arm must produce a compatible result type."],
     ],
     example:
-      'int score = 85;\nstring rank = score {{switch}}\n{\n    >= 80 => "Gold",\n    _ {{=>}} "Keep going"\n};\nConsole.WriteLine(rank);',
+      'int score = 85;\nstring rank = score {{switch}}\n{\n    >= 80 => "Gold",\n    _ {{=>}} "Unranked"\n};\nConsole.WriteLine(rank);',
     output: "Gold",
     pitfall:
       "Switch expressions use => and comma-separated arms, not case labels and break.",
-    task: 'Declare string rank with a switch expression: >= 80 gives "Gold", _ gives "Keep going".',
+    task: 'Declare string rank with a switch expression: >= 80 gives "Gold", _ gives "Unranked".',
     context: "Use score as the switch input.",
     solution:
-      'string rank = score switch { >= 80 => "Gold", _ => "Keep going" };',
+      'string rank = score switch { >= 80 => "Gold", _ => "Unranked" };',
     hint: "input switch { pattern => value, _ => fallback }",
     explanation: "The first matching arm becomes the expression’s value.",
   },
   {
     slug: "classes",
-    title: "Keep an invariant behind a method.",
+    title: "Classes & encapsulation",
     subtitle: "Classes & encapsulation",
     tag: "Data modelling",
     intro:
@@ -308,7 +308,7 @@ export const csharpLessons = buildLessons("csharp", [
   },
   {
     slug: "async",
-    title: "Keep asynchronous work composable.",
+    title: "Tasks & await",
     subtitle: "Tasks & await",
     tag: "Async flow",
     intro:
@@ -339,7 +339,7 @@ export const csharpLessons = buildLessons("csharp", [
   },
   {
     slug: "exceptions",
-    title: "Catch the failure you can handle.",
+    title: "Exceptions & cleanup",
     subtitle: "Exceptions & cleanup",
     tag: "Boundaries",
     intro:

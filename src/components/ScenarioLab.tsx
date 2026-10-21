@@ -31,9 +31,7 @@ export function ScenarioLab({
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow accent">THE SCENARIO LAB</span>
-          <h1>Put the pieces together.</h1>
-          <p>Real little problems. Three ways to practice each one.</p>
+          <h1>Scenarios</h1>
         </div>
         <span className="small-badge">24 scenarios · 72 rounds</span>
       </div>
@@ -43,7 +41,7 @@ export function ScenarioLab({
           <input
             type="search"
             value={query}
-            placeholder="Try maps, boundaries, binary search…"
+            placeholder="Search topics or scenario names"
             onChange={(e) => setQuery(e.target.value)}
           />
         </label>

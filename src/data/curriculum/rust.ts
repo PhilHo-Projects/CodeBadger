@@ -2,7 +2,7 @@ import { buildLessons } from "./build";
 export const rustLessons = buildLessons("rust", [
   {
     slug: "variables",
-    title: "Make mutation a deliberate choice.",
+    title: "Bindings & mutability",
     subtitle: "Bindings & mutability",
     tag: "Foundations",
     intro:
@@ -33,7 +33,7 @@ export const rustLessons = buildLessons("rust", [
   },
   {
     slug: "loops",
-    title: "Use the range you mean.",
+    title: "Ranges & loops",
     subtitle: "Ranges & loops",
     tag: "Control flow",
     intro:
@@ -59,7 +59,7 @@ export const rustLessons = buildLessons("rust", [
   },
   {
     slug: "functions",
-    title: "Let the last expression speak.",
+    title: "Functions & expressions",
     subtitle: "Functions & expressions",
     tag: "Foundations",
     intro:
@@ -86,7 +86,7 @@ export const rustLessons = buildLessons("rust", [
   },
   {
     slug: "ownership",
-    title: "Know when a value changes hands.",
+    title: "Ownership & moves",
     subtitle: "Ownership & moves",
     tag: "Memory model",
     intro:
@@ -116,7 +116,7 @@ export const rustLessons = buildLessons("rust", [
   },
   {
     slug: "borrowing",
-    title: "Read without taking ownership.",
+    title: "References & borrowing",
     subtitle: "References & borrowing",
     tag: "Memory model",
     intro:
@@ -146,7 +146,7 @@ export const rustLessons = buildLessons("rust", [
   },
   {
     slug: "mutable-borrow",
-    title: "Allow one writer at a time.",
+    title: "Mutable references",
     subtitle: "Mutable references",
     tag: "Memory model",
     intro:
@@ -173,7 +173,7 @@ export const rustLessons = buildLessons("rust", [
   },
   {
     slug: "vectors",
-    title: "Grow a sequence safely.",
+    title: "Vectors & slices",
     subtitle: "Vectors & slices",
     tag: "Collections",
     intro:
@@ -202,7 +202,7 @@ export const rustLessons = buildLessons("rust", [
   },
   {
     slug: "option",
-    title: "Handle the missing case.",
+    title: "Option & matching",
     subtitle: "Option & matching",
     tag: "Error handling",
     intro:
@@ -224,7 +224,7 @@ export const rustLessons = buildLessons("rust", [
   },
   {
     slug: "result",
-    title: "Return failures as values.",
+    title: "Result & propagation",
     subtitle: "Result & propagation",
     tag: "Error handling",
     intro:
@@ -255,7 +255,7 @@ export const rustLessons = buildLessons("rust", [
   },
   {
     slug: "enums",
-    title: "Represent each state honestly.",
+    title: "Enums & match",
     subtitle: "Enums & match",
     tag: "Data modelling",
     intro:
@@ -288,7 +288,7 @@ export const rustLessons = buildLessons("rust", [
   },
   {
     slug: "iterators",
-    title: "Transform, then consume.",
+    title: "Iterator pipelines",
     subtitle: "Iterator pipelines",
     tag: "Collections",
     intro:
@@ -320,7 +320,7 @@ export const rustLessons = buildLessons("rust", [
   },
   {
     slug: "lifetimes",
-    title: "Connect a borrowed result to its input.",
+    title: "Lifetimes & slices",
     subtitle: "Lifetimes & slices",
     tag: "Memory model",
     intro:

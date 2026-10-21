@@ -36,7 +36,6 @@ export function LessonWorkspace({
             LESSON {String(index + 1).padStart(2, "0")} / {lesson.tag}
           </span>
           <h1>{lesson.title}</h1>
-          <p>Understand the pattern. Get a few reps. Make it yours.</p>
         </div>
         <div className="lesson-duration">
           <span
@@ -58,7 +57,9 @@ export function LessonWorkspace({
           ))}
         </select>
       </label>
-      <div className="lesson-grid">
+      <div
+        className={`lesson-grid${stage === "fill" || stage === "recall" ? " lesson-grid--exercise" : ""}`}
+      >
         <section
           className="lesson-workspace"
           aria-label={`${lesson.subtitle} practice`}
@@ -91,9 +92,7 @@ export function LessonWorkspace({
             {stage === "type" && (
               <>
                 <div className="exercise-intro">
-                  <span className="eyebrow">Build the muscle memory</span>
-                  <h2>Let your fingers do a lap.</h2>
-                  <p>Type the code below. Accuracy comes first.</p>
+                  <h2>Type the code below.</h2>
                 </div>
                 <TypingDrill
                   language={lesson.language}
@@ -146,10 +145,6 @@ export function LessonWorkspace({
         />
       </div>
       <div className="lesson-footer">
-        <span>
-          <span className="tiny-badger">//</span> Small reps beat a giant cram
-          session.
-        </span>
         <span className="muted small-text">
           {index + 1} of {track.length} · {LANGUAGE_META[lesson.language].label}
         </span>

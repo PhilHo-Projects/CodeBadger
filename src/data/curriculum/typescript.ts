@@ -2,7 +2,7 @@ import { buildLessons } from "./build";
 export const typescriptLessons = buildLessons("typescript", [
   {
     slug: "variables",
-    title: "Give your values a contract.",
+    title: "Bindings & types",
     subtitle: "Bindings & types",
     tag: "Foundations",
     intro:
@@ -35,7 +35,7 @@ export const typescriptLessons = buildLessons("typescript", [
   },
   {
     slug: "loops",
-    title: "Keep the boundary in sight.",
+    title: "Loops & boundaries",
     subtitle: "Loops & boundaries",
     tag: "Control flow",
     intro:
@@ -69,7 +69,7 @@ export const typescriptLessons = buildLessons("typescript", [
   },
   {
     slug: "functions",
-    title: "Make inputs and outputs explicit.",
+    title: "Functions",
     subtitle: "Functions",
     tag: "Foundations",
     intro:
@@ -102,7 +102,7 @@ export const typescriptLessons = buildLessons("typescript", [
   },
   {
     slug: "arrays",
-    title: "Transform without losing the original.",
+    title: "Arrays & transforms",
     subtitle: "Arrays & transforms",
     tag: "Collections",
     intro:
@@ -135,7 +135,7 @@ export const typescriptLessons = buildLessons("typescript", [
   },
   {
     slug: "objects",
-    title: "Handle the value that might be missing.",
+    title: "Optional values",
     subtitle: "Optional values",
     tag: "Null safety",
     intro:
@@ -164,7 +164,7 @@ export const typescriptLessons = buildLessons("typescript", [
   },
   {
     slug: "narrowing",
-    title: "Check it, then use it.",
+    title: "Union narrowing",
     subtitle: "Union narrowing",
     tag: "Type system",
     intro:
@@ -197,7 +197,7 @@ export const typescriptLessons = buildLessons("typescript", [
   },
   {
     slug: "unions",
-    title: "Let the tag choose the shape.",
+    title: "Discriminated unions",
     subtitle: "Discriminated unions",
     tag: "Type system",
     intro:
@@ -230,7 +230,7 @@ export const typescriptLessons = buildLessons("typescript", [
   },
   {
     slug: "generics",
-    title: "Preserve the type you were handed.",
+    title: "Generics",
     subtitle: "Generics",
     tag: "Type system",
     intro:
@@ -256,7 +256,7 @@ export const typescriptLessons = buildLessons("typescript", [
   },
   {
     slug: "maps",
-    title: "Count what you encounter.",
+    title: "Maps & counting",
     subtitle: "Maps & counting",
     tag: "Collections",
     intro:
@@ -288,7 +288,7 @@ export const typescriptLessons = buildLessons("typescript", [
   },
   {
     slug: "sets",
-    title: "Keep only the first occurrence.",
+    title: "Sets & membership",
     subtitle: "Sets & membership",
     tag: "Collections",
     intro:
@@ -315,7 +315,7 @@ export const typescriptLessons = buildLessons("typescript", [
   },
   {
     slug: "async",
-    title: "Wait for the value, not the promise.",
+    title: "Async & await",
     subtitle: "Async & await",
     tag: "Async flow",
     intro:
@@ -347,7 +347,7 @@ export const typescriptLessons = buildLessons("typescript", [
   },
   {
     slug: "errors",
-    title: "Treat a caught value as unknown.",
+    title: "Errors & validation",
     subtitle: "Errors & validation",
     tag: "Boundaries",
     intro:

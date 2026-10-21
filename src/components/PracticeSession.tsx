@@ -36,18 +36,11 @@ export function PracticeSession({
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow accent">{title}</span>
-          <h1>
-            {done ? "A few reps further along." : "One problem at a time."}
-          </h1>
-          <p>
-            {done
-              ? "Results saved. The reps that need work will return in your review queue."
-              : "Take your time. A useful attempt beats a fast guess."}
-          </p>
+          <h1>{done ? "Session results" : title}</h1>
+          {done && <p>Incorrect and skipped exercises are due for review.</p>}
         </div>
         <button className="button button-quiet" onClick={onExit}>
-          Back to practice desk
+          Back to practice
         </button>
       </div>
       {done ? (
@@ -56,7 +49,7 @@ export function PracticeSession({
             <Icon name="check" size={30} />
           </span>
           <h2>
-            {passed} of {exercises.length} reps completed.
+            {passed} of {exercises.length} exercises completed.
           </h2>
           <p>
             {unaided} unaided · {passed - unaided} guided ·{" "}
@@ -88,7 +81,7 @@ export function PracticeSession({
           </div>
           <div className="inline-actions">
             <button className="button button-secondary" onClick={onExit}>
-              Practice desk
+              Back to practice
             </button>
             <button className="button button-primary" onClick={onAgain}>
               Another session
@@ -101,7 +94,7 @@ export function PracticeSession({
           <div className="session-layout">
             <aside className="session-outline">
               <span className="eyebrow">
-                YOUR SESSION / {exercises.length} REPS
+                SESSION / {exercises.length} EXERCISES
               </span>
               {exercises.map((e, i) => (
                 <div
@@ -124,14 +117,14 @@ export function PracticeSession({
                 </div>
               ))}
               <p>
-                Hints count as guided reps. Unaided work earns the longer review
-                interval.
+                Attempts with hints are recorded as assisted. Unaided answers
+                receive longer review intervals.
               </p>
             </aside>
             <div className="panel session-panel" ref={round} tabIndex={-1}>
               <div className="section-heading">
                 <span className="eyebrow">
-                  REP {index + 1} OF {exercises.length}
+                  EXERCISE {index + 1} OF {exercises.length}
                 </span>
                 <span
                   className="language-pill"
@@ -149,7 +142,9 @@ export function PracticeSession({
                 }}
                 onNext={() => setIndex((i) => i + 1)}
                 nextLabel={
-                  index + 1 === exercises.length ? "Finish session" : "Next rep"
+                  index + 1 === exercises.length
+                    ? "Finish session"
+                    : "Next exercise"
                 }
               />
             </div>

@@ -2272,10 +2272,10 @@ select {
   color: var(--amber);
 }
 .session-builder h2 {
-  font-size: 32px;
-  line-height: 1.12;
-  letter-spacing: -0.9px;
-  margin-top: 23px;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  margin: 0;
 }
 .session-builder p {
   font-size: 12px;
@@ -2348,10 +2348,10 @@ select {
   padding: 28px;
 }
 .scenario-teaser h2 {
-  font-size: 31px;
+  font-size: 24px;
   line-height: 1.15;
   letter-spacing: -1px;
-  margin: 15px 0;
+  margin: 0 0 15px;
 }
 .scenario-teaser p {
   max-width: 380px;
@@ -2368,8 +2368,8 @@ select {
   margin-top: 0;
 }
 .review-note h2 {
-  font-size: 28px;
-  margin: 21px 0 16px;
+  font-size: 24px;
+  margin: 0 0 16px;
   line-height: 1.15;
   letter-spacing: -0.7px;
 }
@@ -2858,7 +2858,7 @@ select {
     margin: 23px 0;
   }
   .session-builder h2 {
-    font-size: 31px;
+    font-size: 24px;
   }
   .session-builder > .button {
     margin-top: 0;
@@ -2971,4 +2971,19 @@ select {
   .sidebar-bottom {
     padding-top: 15px;
   }
+}
+/* Exercise instructions use the full panel width when reference notes are hidden. */
+.lesson-grid.lesson-grid--exercise {
+  grid-template-columns: minmax(0, 1fr);
+}
+.lesson-grid--exercise .exercise-intro h2 {
+  font-size: clamp(24px, 2.2vw, 30px);
+  line-height: 1.35;
+  max-width: 58ch;
+}
+.lesson-grid--exercise .exercise-actions {
+  justify-content: space-between;
+}
+.learn-step > .exercise-actions {
+  justify-content: flex-end;
 }

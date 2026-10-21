@@ -103,7 +103,7 @@ function pack(
 export const scenarios: Scenario[] = [
   ...pack(
     "checkout",
-    "The checkout total",
+    "Sum qualifying prices",
     "A cart has prices 10, 20 and 40. Only prices at least 20 qualify for the offer. Sum the qualifying prices.",
     "Arrays & filtering",
     "Foundations",
@@ -176,8 +176,8 @@ export const scenarios: Scenario[] = [
   ),
   ...pack(
     "log-counts",
-    "Count the log entries",
-    "A tiny log contains ok, fail, ok. Count each label, then read the count of ok.",
+    "Count log entries",
+    "The log contains ok, fail, ok. Count each label, then read the count of ok.",
     "Maps & counting",
     "Intermediate",
     [
@@ -246,7 +246,7 @@ export const scenarios: Scenario[] = [
   ),
   ...pack(
     "duplicates",
-    "Spot a duplicate",
+    "Count unique values",
     "A sequence contains 3, 1, 3, 2. Track membership and report the number of distinct values.",
     "Sets & membership",
     "Foundations",
@@ -315,7 +315,7 @@ export const scenarios: Scenario[] = [
   ),
   ...pack(
     "off-by-one",
-    "One iteration too far",
+    "Loop boundaries",
     "Accumulate the integers from 0 through 3. The upper boundary should exclude 4.",
     "Loops & boundaries",
     "Foundations",
@@ -383,7 +383,7 @@ export const scenarios: Scenario[] = [
   ),
   ...pack(
     "missing-name",
-    "The missing display name",
+    "Optional display names",
     "A present but empty name is valid. Fall back to Guest only when the value is absent, then print the label length.",
     "Optional values",
     "Intermediate",
@@ -462,7 +462,7 @@ export const scenarios: Scenario[] = [
   ),
   ...pack(
     "binary-search",
-    "Find the sorted boundary",
+    "Binary search",
     "A sorted sequence is 2, 4, 6, 8. Find the first index whose value is at least 5 using a half-open search interval.",
     "Binary search",
     "Intermediate",
@@ -520,7 +520,8 @@ export const scenarios: Scenario[] = [
         output: "2",
         wrong: ["1", "3", "6"],
         broken: ["low = mid + 1", "low = mid"],
-        repair: "Fix the low update so the search cannot get stuck.",
+        repair:
+          "Fix the low update so each iteration reduces the search interval.",
         recall: [
           "Write the statement advancing low past mid.",
           "low = mid + 1;",

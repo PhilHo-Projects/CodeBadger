@@ -88,10 +88,9 @@ export function ProgressView({
       <div className="page-heading">
         <div>
           <span className="eyebrow accent">
-            EVERY REP COUNTS / {LANGUAGE_META[language].label}
+            {LANGUAGE_META[language].label}
           </span>
-          <h1>Look what’s coming back.</h1>
-          <p>Your practice, saved here. A useful record of what to revisit.</p>
+          <h1>Progress</h1>
         </div>
         <button className="button button-primary" onClick={onWarmup}>
           <Icon name="bolt" size={16} />
@@ -115,7 +114,7 @@ export function ProgressView({
           <strong>{accuracy === null ? "—" : `${accuracy}%`}</strong>
         </div>
         <div>
-          <span className="eyebrow">Unaided reps</span>
+          <span className="eyebrow">Unaided completions</span>
           <strong>
             {
               attempts.filter(
@@ -181,7 +180,7 @@ export function ProgressView({
         </section>
         <section className="panel history-panel">
           <div className="section-heading">
-            <h2>Recent reps</h2>
+            <h2>Recent attempts</h2>
             <select
               className="history-language"
               aria-label="History language"
@@ -238,8 +237,8 @@ export function ProgressView({
           ) : (
             <div className="empty-history">
               <Icon name="chart" size={25} />
-              <h3>Your first rep starts the record.</h3>
-              <p>Typing, recall and scenario attempts appear here.</p>
+              <h3>No attempts recorded.</h3>
+              <p>Complete a typing drill or exercise to record an attempt.</p>
             </div>
           )}
           <p className="validation-note">
@@ -250,8 +249,7 @@ export function ProgressView({
       </div>
       <section className="backup-panel panel">
         <div>
-          <span className="eyebrow accent">TAKE YOUR PROGRESS WITH YOU</span>
-          <h2>Laptop today. Desktop tomorrow.</h2>
+          <h2>Progress backups</h2>
           <p>
             Export all languages to JSON, then import on your other machine.
             Import merges both records and removes exact duplicates.

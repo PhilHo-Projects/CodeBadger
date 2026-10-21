@@ -53,7 +53,7 @@ export const LANGUAGE_META: Record<
     short: "PY",
     extension: "py",
     color: "#d9cb83",
-    description: "Quick typing laps in readable Python.",
+    description: "Python 3 typing drills.",
     setup: "Python 3 quick drills. A full learning track is on the roadmap.",
   },
 };

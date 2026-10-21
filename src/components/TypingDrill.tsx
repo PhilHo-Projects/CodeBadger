@@ -127,9 +127,9 @@ export function TypingDrill({
         <span className={`focus-status${focused ? " is-focused" : ""}`}>
           <i />
           {complete
-            ? "Rep complete"
+            ? "Typing exercise complete"
             : focused
-              ? "Ready for your keystrokes"
+              ? "Typing input focused"
               : "Click the code to focus"}
         </span>
         <div className="toolbar-actions">
@@ -249,14 +249,10 @@ export function TypingDrill({
             <Icon name="check" />
           </span>
           <div>
-            <strong>
-              {round.typos === 0
-                ? "Clean rep. Nicely done."
-                : "Another rep in the bank."}
-            </strong>
+            <strong>Typing exercise complete</strong>
             <p>
               {stats.accuracy.toFixed(0)}% accuracy · {stats.wpm.toFixed(0)} WPM
-              · Try recalling the pattern next.
+              · {round.typos} incorrect keystrokes
             </p>
           </div>
           {onNext && (

@@ -128,6 +128,7 @@ function buildPrompt(options: GenerateSnippetOptions) {
     'Use this schema: {"filename":"string","title":"string","description":"string","code":"string","lineHints":[{"line":1,"text":"string"}]}.',
     'Set "title" to a short snippet name.',
     'Set "description" to one or two sentences explaining what the code does and what the player is typing.',
+    "Use direct, factual topic names and instructions. Do not include slogans, motivational phrases, metaphors, marketing copy, or praise.",
     lineHintInstruction,
     "The code must be a single self-contained snippet between 6 and 18 lines.",
     "Do not include markdown fences or any text outside the JSON payload.",

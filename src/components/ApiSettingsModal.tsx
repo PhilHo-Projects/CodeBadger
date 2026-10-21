@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Icon } from "./Icons";
 
-type ApiSettingsModalProps = {
+type Props = {
   open: boolean;
   initialApiKey: string;
   initialModel: string;
@@ -8,102 +9,98 @@ type ApiSettingsModalProps = {
   onSave: (apiKey: string, model: string) => void;
 };
 
-export function ApiSettingsModal(props: ApiSettingsModalProps) {
-  const [apiKey, setApiKey] = useState(props.initialApiKey);
-  const [model, setModel] = useState(props.initialModel);
-
+export function ApiSettingsModal({
+  open,
+  initialApiKey,
+  initialModel,
+  onClose,
+  onSave,
+}: Props) {
+  const dialog = useRef<HTMLDialogElement>(null);
+  const [apiKey, setApiKey] = useState("");
+  const [model, setModel] = useState("");
   useEffect(() => {
-    if (!props.open) {
-      return;
-    }
-
-    setApiKey(props.initialApiKey);
-    setModel(props.initialModel);
-  }, [props.initialApiKey, props.initialModel, props.open]);
-
-  if (!props.open) {
-    return null;
-  }
-
+    if (open) {
+      setApiKey(initialApiKey);
+      setModel(initialModel);
+      dialog.current?.showModal();
+    } else dialog.current?.close();
+  }, [open, initialApiKey, initialModel]);
   return (
-    <div className="fixed inset-0 z-30 flex items-center justify-center bg-[#060911]/70 px-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-[28px] border border-white/10 bg-panel/95 p-6 shadow-[0_32px_80px_rgba(5,7,16,0.6)]">
-        <div className="flex items-start justify-between gap-4">
+    <dialog
+      ref={dialog}
+      className="settings-dialog"
+      aria-labelledby="settings-title"
+      onCancel={onClose}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          onSave(apiKey.trim(), model.trim() || "gemini-2.5-flash");
+          onClose();
+        }}
+      >
+        <div className="dialog-heading">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-accent">Google AI</p>
-            <h2 className="mt-2 text-2xl font-semibold text-text-main">Local API settings</h2>
-            <p className="mt-2 text-sm leading-6 text-text-muted">
-              Paste your API key here. It stays on this device in browser storage and is not written into the repo.
-            </p>
+            <span className="eyebrow">Optional extras</span>
+            <h2 id="settings-title">Fresh drills with Google AI</h2>
           </div>
-
           <button
             type="button"
-            onClick={props.onClose}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/4 text-text-main transition hover:bg-white/8"
+            className="icon-button"
             aria-label="Close settings"
+            onClick={onClose}
           >
-            ×
+            <Icon name="close" />
           </button>
         </div>
-
-        <div className="mt-6 space-y-4">
-          <label className="block text-xs uppercase tracking-[0.24em] text-text-muted">
-            API key
-            <input
-              type="password"
-              value={apiKey}
-              onChange={(event) => setApiKey(event.target.value)}
-              placeholder="Paste your Google AI API key"
-              className="mt-2 h-12 w-full rounded-2xl border border-white/10 bg-white px-4 text-sm text-slate-950 outline-none transition focus:border-accent/70 focus:ring-2 focus:ring-accent/20"
-            />
-          </label>
-
-          <label className="block text-xs uppercase tracking-[0.24em] text-text-muted">
-            Model
-            <input
-              type="text"
-              value={model}
-              onChange={(event) => setModel(event.target.value)}
-              placeholder="gemini-2.5-flash"
-              className="mt-2 h-12 w-full rounded-2xl border border-white/10 bg-white px-4 text-sm text-slate-950 outline-none transition focus:border-accent/70 focus:ring-2 focus:ring-accent/20"
-            />
-          </label>
-        </div>
-
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-between">
+        <p>
+          All lessons and the snippet library work without a key. Add your own
+          key to generate variations in quick drills.
+        </p>
+        <label className="form-label">
+          API key
+          <input
+            type="password"
+            value={apiKey}
+            autoComplete="off"
+            onChange={(event) => setApiKey(event.target.value)}
+            placeholder="Google AI API key"
+          />
+        </label>
+        <label className="form-label">
+          Model
+          <input
+            value={model}
+            onChange={(event) => setModel(event.target.value)}
+            placeholder="gemini-2.5-flash"
+          />
+        </label>
+        <p className="validation-note">
+          The key is stored in this browser and sent directly to Google when you
+          generate. It is accessible to scripts on this site. Generation uses
+          your Google AI quota.
+        </p>
+        <div className="exercise-actions">
           <button
             type="button"
+            className="button button-quiet"
             onClick={() => {
-              props.onSave("", model.trim() || "gemini-2.5-flash");
-              props.onClose();
+              onSave("", model.trim());
+              onClose();
             }}
-            className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-white/4 px-5 text-sm font-medium text-text-main transition hover:bg-white/8"
           >
-            Clear key
+            Remove key
           </button>
-
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={props.onClose}
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-white/4 px-5 text-sm font-medium text-text-main transition hover:bg-white/8"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                props.onSave(apiKey.trim(), model.trim() || "gemini-2.5-flash");
-                props.onClose();
-              }}
-              className="inline-flex h-11 items-center justify-center rounded-2xl border border-accent/30 bg-accent/15 px-5 text-sm font-semibold text-accent transition hover:border-accent/60 hover:bg-accent/20"
-            >
-              Save settings
-            </button>
-          </div>
+          <button className="button button-primary" type="submit">
+            Save settings
+            <Icon name="check" size={16} />
+          </button>
         </div>
-      </div>
-    </div>
+      </form>
+    </dialog>
   );
 }

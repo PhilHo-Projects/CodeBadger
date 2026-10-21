@@ -1,5 +1,5 @@
 import { fallbackSnippets } from "../data/fallbackSnippets";
-import type { Difficulty, Language, RoundState, Snippet, TopicFilter } from "./types";
+import { normalizeTopicFilter, type Difficulty, type Language, type RoundState, type Snippet, type TopicFilter } from "./types";
 
 function isSnippetUsable(snippet: Snippet) {
   return snippet.code.length > 0;
@@ -29,12 +29,13 @@ export function selectSnippetFromPool(snippets: Snippet[], options: SelectSnippe
   const languagePool = snippets.filter(
     (snippet) => snippet.language === options.language && isSnippetUsable(snippet)
   );
+  const normalizedTopic = normalizeTopicFilter(options.language, options.difficulty, options.topic);
 
   const difficultyMatches = languagePool.filter((snippet) => snippet.difficulty === options.difficulty);
   const exactMatches =
-    options.topic === "all"
+    normalizedTopic === "all"
       ? difficultyMatches
-      : difficultyMatches.filter((snippet) => snippet.topic === options.topic);
+      : difficultyMatches.filter((snippet) => snippet.topic === normalizedTopic);
 
   if (exactMatches.length > 0) {
     return chooseRandom(exactMatches, options.excludeCode);
@@ -45,9 +46,9 @@ export function selectSnippetFromPool(snippets: Snippet[], options: SelectSnippe
   }
 
   const relaxedDifficulty =
-    options.topic === "all"
+    normalizedTopic === "all"
       ? languagePool
-      : languagePool.filter((snippet) => snippet.topic === options.topic);
+      : languagePool.filter((snippet) => snippet.topic === normalizedTopic);
 
   if (relaxedDifficulty.length > 0) {
     return chooseRandom(relaxedDifficulty, options.excludeCode);

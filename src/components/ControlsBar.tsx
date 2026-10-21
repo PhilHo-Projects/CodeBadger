@@ -1,27 +1,20 @@
-import { DIFFICULTIES, LANGUAGES, TOPICS, type Difficulty, type Language, type TopicFilter } from "../lib/types";
+import {
+  DIFFICULTIES,
+  LANGUAGES,
+  getDifficultyLabel,
+  getTopicLabel,
+  getTopicsForLanguage,
+  type Difficulty,
+  type Language,
+  type TopicFilter,
+} from "../lib/types";
 
 const LANGUAGE_LABELS: Record<Language, string> = {
+  rust: "Rust",
   csharp: "C#",
   cpp: "C++",
   typescript: "TypeScript",
-  python: "Python"
-};
-
-const DIFFICULTY_LABELS: Record<Difficulty, string> = {
-  easy: "Easy",
-  medium: "Medium",
-  hard: "Hard"
-};
-
-const TOPIC_LABELS: Record<TopicFilter, string> = {
-  all: "All topics",
-  loops: "Loops",
-  arrays: "Arrays",
-  strings: "Strings",
-  collections: "Collections",
-  classes: "Classes",
-  algorithms: "Algorithms",
-  "game-dev": "Game-dev"
+  python: "Python",
 };
 
 type ControlsBarProps = {
@@ -45,11 +38,18 @@ function selectClassName() {
 }
 
 export function ControlsBar(props: ControlsBarProps) {
+  const topicOptions = [
+    "all",
+    ...getTopicsForLanguage(props.language, props.difficulty),
+  ] as const;
+
   return (
     <section className="rounded-[28px] border border-white/10 bg-panel/75 p-4 shadow-panel backdrop-blur">
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
-          <div className="text-xs uppercase tracking-[0.24em] text-text-muted">Controls</div>
+          <div className="text-xs uppercase tracking-[0.24em] text-text-muted">
+            Controls
+          </div>
 
           <button
             type="button"
@@ -58,7 +58,10 @@ export function ControlsBar(props: ControlsBarProps) {
             title="Google AI settings"
           >
             <span aria-hidden="true">
-              <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-[1.8]">
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4 fill-none stroke-current stroke-[1.8]"
+              >
                 <path d="M10.3 2.7h3.4l.6 2.2a7.8 7.8 0 0 1 1.8.8l2.1-1 2.4 2.4-1 2.1c.3.6.6 1.2.8 1.8l2.2.6v3.4l-2.2.6a7.8 7.8 0 0 1-.8 1.8l1 2.1-2.4 2.4-2.1-1a7.8 7.8 0 0 1-1.8.8l-.6 2.2h-3.4l-.6-2.2a7.8 7.8 0 0 1-1.8-.8l-2.1 1-2.4-2.4 1-2.1a7.8 7.8 0 0 1-.8-1.8l-2.2-.6v-3.4l2.2-.6a7.8 7.8 0 0 1 .8-1.8l-1-2.1 2.4-2.4 2.1 1c.6-.3 1.2-.6 1.8-.8l.6-2.2Z" />
                 <circle cx="12" cy="12" r="3.2" />
               </svg>
@@ -83,7 +86,9 @@ export function ControlsBar(props: ControlsBarProps) {
               <select
                 className={selectClassName()}
                 value={props.language}
-                onChange={(event) => props.onLanguageChange(event.target.value as Language)}
+                onChange={(event) =>
+                  props.onLanguageChange(event.target.value as Language)
+                }
               >
                 {LANGUAGES.map((language) => (
                   <option key={language} value={language}>
@@ -98,11 +103,13 @@ export function ControlsBar(props: ControlsBarProps) {
               <select
                 className={selectClassName()}
                 value={props.difficulty}
-                onChange={(event) => props.onDifficultyChange(event.target.value as Difficulty)}
+                onChange={(event) =>
+                  props.onDifficultyChange(event.target.value as Difficulty)
+                }
               >
                 {DIFFICULTIES.map((difficulty) => (
                   <option key={difficulty} value={difficulty}>
-                    {DIFFICULTY_LABELS[difficulty]}
+                    {getDifficultyLabel(props.language, difficulty)}
                   </option>
                 ))}
               </select>
@@ -113,11 +120,13 @@ export function ControlsBar(props: ControlsBarProps) {
               <select
                 className={selectClassName()}
                 value={props.topic}
-                onChange={(event) => props.onTopicChange(event.target.value as TopicFilter)}
+                onChange={(event) =>
+                  props.onTopicChange(event.target.value as TopicFilter)
+                }
               >
-                {(["all", ...TOPICS] as const).map((topic) => (
+                {topicOptions.map((topic) => (
                   <option key={topic} value={topic}>
-                    {TOPIC_LABELS[topic]}
+                    {getTopicLabel(topic)}
                   </option>
                 ))}
               </select>
@@ -130,7 +139,11 @@ export function ControlsBar(props: ControlsBarProps) {
               onClick={props.onGenerateSnippet}
               disabled={!props.hasGoogleApiKey || props.isGenerating}
               className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/10 bg-white/4 px-5 text-sm font-medium text-text-main transition hover:border-accent/30 hover:bg-white/8 disabled:cursor-not-allowed disabled:opacity-60"
-              title={props.hasGoogleApiKey ? "Generate a new snippet with Google AI." : "Add your Google AI API key first."}
+              title={
+                props.hasGoogleApiKey
+                  ? "Generate a new snippet with Google AI."
+                  : "Add your Google AI API key first."
+              }
             >
               {props.isGenerating ? "Generating..." : "Generate"}
               <span className="ml-2 rounded-full border border-white/10 bg-white/6 px-2 py-0.5 text-[10px] uppercase tracking-[0.2em]">
@@ -150,7 +163,9 @@ export function ControlsBar(props: ControlsBarProps) {
         </div>
 
         {props.generatorMessage ? (
-          <p className="mt-1 text-sm text-text-muted">{props.generatorMessage}</p>
+          <p className="mt-1 text-sm text-text-muted">
+            {props.generatorMessage}
+          </p>
         ) : null}
       </div>
     </section>

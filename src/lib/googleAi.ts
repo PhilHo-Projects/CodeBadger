@@ -1,4 +1,16 @@
-import type { Difficulty, Language, Snippet, TopicFilter } from "./types";
+import { normalizeSnippetText, sanitizeLineHints } from "./snippetText";
+import {
+  getDefaultTopicForSelection,
+  getDifficultyLabel,
+  getLanguageLabel,
+  getTopicLabel,
+  getTopicsForLanguage,
+  type Difficulty,
+  type Language,
+  type Snippet,
+  type SnippetLineHint,
+  type TopicFilter,
+} from "./types";
 
 const STORAGE_KEY = "codebadger.google-ai-settings";
 const DEFAULT_MODEL = "gemini-2.5-flash";
@@ -15,6 +27,7 @@ type GenerateSnippetOptions = {
   difficulty: Difficulty;
   topic: TopicFilter;
   previousSnippet?: string | null;
+  signal?: AbortSignal;
 };
 
 type GoogleGenerateResponse = {
@@ -26,23 +39,13 @@ type GoogleGenerateResponse = {
     };
   }>;
 };
-
-function languageLabel(language: Language) {
-  switch (language) {
-    case "csharp":
-      return "C#";
-    case "cpp":
-      return "C++";
-    case "typescript":
-      return "TypeScript";
-    case "python":
-      return "Python";
-  }
-}
-
-function topicLabel(topic: TopicFilter) {
-  return topic === "all" ? "any topic" : topic;
-}
+type GeneratedSnippetPayload = {
+  filename?: string;
+  title?: string;
+  description?: string;
+  code?: string;
+  lineHints?: Array<Partial<SnippetLineHint>>;
+};
 
 function safeFilename(language: Language) {
   switch (language) {
@@ -54,11 +57,16 @@ function safeFilename(language: Language) {
       return "generated-snippet.ts";
     case "python":
       return "generated-snippet.py";
+    case "rust":
+      return "generated-snippet.rs";
   }
 }
 
 function stripCodeFences(text: string) {
-  return text.replace(/^```[\w-]*\s*/u, "").replace(/\s*```$/u, "").trim();
+  return text
+    .replace(/^```[\w-]*\s*/u, "")
+    .replace(/\s*```$/u, "")
+    .trim();
 }
 
 function readCandidateText(response: GoogleGenerateResponse) {
@@ -70,38 +78,99 @@ function readCandidateText(response: GoogleGenerateResponse) {
 }
 
 function normalizeCode(code: string) {
-  return stripCodeFences(code).replace(/\r\n/g, "\n").trim();
+  return stripCodeFences(code)
+    .replace(/\r\n?/g, "\n")
+    .replace(/\t/g, "    ")
+    .trim();
+}
+
+function normalizeTextSummary(text: string | undefined) {
+  return normalizeSnippetText(text ?? "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function fallbackTitle(
+  language: Language,
+  difficulty: Difficulty,
+  topic: Exclude<TopicFilter, "all">,
+) {
+  return `${getDifficultyLabel(language, difficulty)} ${getTopicLabel(topic)}`;
+}
+
+function fallbackDescription(
+  language: Language,
+  difficulty: Difficulty,
+  topic: Exclude<TopicFilter, "all">,
+) {
+  return `Type a short ${getLanguageLabel(language)} ${getDifficultyLabel(language, difficulty).toLowerCase()} snippet focused on ${getTopicLabel(topic).toLowerCase()}.`;
 }
 
 function buildPrompt(options: GenerateSnippetOptions) {
+  const tierTopics = getTopicsForLanguage(options.language, options.difficulty)
+    .map((topic) => getTopicLabel(topic))
+    .join(", ");
   const topicInstruction =
     options.topic === "all"
-      ? "Choose a useful topic yourself."
-      : `Use the topic "${topicLabel(options.topic)}".`;
+      ? `Choose a useful topic from this tier only: ${tierTopics}.`
+      : `Use the topic "${getTopicLabel(options.topic)}".`;
+  const lineHintInstruction =
+    options.language === "cpp" && options.difficulty === "easy"
+      ? 'Include optional "lineHints" with short visual-only notes using valid 1-based line numbers from the code.'
+      : 'Omit "lineHints" unless they are clearly useful.';
 
   return [
     "You are generating a short code typing practice snippet.",
-    `Language: ${languageLabel(options.language)}.`,
-    `Difficulty: ${options.difficulty}.`,
+    `Language: ${getLanguageLabel(options.language)}.`,
+    `Difficulty tier: ${getDifficultyLabel(options.language, options.difficulty)} (${options.difficulty}).`,
     topicInstruction,
     "Return valid JSON only.",
-    'Use this schema: {"filename":"string","code":"string"}.',
+    'Use this schema: {"filename":"string","title":"string","description":"string","code":"string","lineHints":[{"line":1,"text":"string"}]}.',
+    'Set "title" to a short snippet name.',
+    'Set "description" to one or two sentences explaining what the code does and what the player is typing.',
+    lineHintInstruction,
     "The code must be a single self-contained snippet between 6 and 18 lines.",
-    "Do not include markdown fences, commentary, or explanations.",
+    "Do not include markdown fences or any text outside the JSON payload.",
     options.previousSnippet
       ? `Do not repeat or closely mirror this previous snippet:\n${options.previousSnippet}`
-      : "Do not repeat earlier snippets."
+      : "Do not repeat earlier snippets.",
   ].join("\n");
 }
 
-function parseGeneratedSnippet(text: string, options: GenerateSnippetOptions): Snippet {
+export function parseGeneratedSnippet(
+  text: string,
+  options: GenerateSnippetOptions,
+): Snippet {
   const cleanedText = stripCodeFences(text);
-  let parsed: { filename?: string; code?: string };
+  let parsed: GeneratedSnippetPayload;
 
   try {
-    parsed = JSON.parse(cleanedText) as { filename?: string; code?: string };
+    parsed = JSON.parse(cleanedText) as GeneratedSnippetPayload;
   } catch {
     throw new Error("Google AI returned an unreadable snippet payload.");
+  }
+
+  if (
+    !parsed ||
+    typeof parsed !== "object" ||
+    Array.isArray(parsed) ||
+    typeof parsed.code !== "string"
+  ) {
+    throw new Error(
+      "Google AI returned an invalid snippet payload. Try generating again.",
+    );
+  }
+  for (const key of ["title", "description", "filename"] as const) {
+    if (parsed[key] !== undefined && typeof parsed[key] !== "string")
+      delete parsed[key];
+  }
+  if (parsed.lineHints !== undefined) {
+    parsed.lineHints = Array.isArray(parsed.lineHints)
+      ? parsed.lineHints.filter(
+          (hint) =>
+            hint && typeof hint === "object" && typeof hint.text === "string",
+        )
+      : undefined;
   }
 
   const code = normalizeCode(parsed.code ?? "");
@@ -109,14 +178,39 @@ function parseGeneratedSnippet(text: string, options: GenerateSnippetOptions): S
   if (!code) {
     throw new Error("Google AI returned an empty snippet.");
   }
+  if (code.length > 2000 || code.split("\n").length > 40) {
+    throw new Error(
+      "Google AI returned a snippet that is too long. Try generating again.",
+    );
+  }
+
+  const topic =
+    options.topic === "all"
+      ? getDefaultTopicForSelection(options.language, options.difficulty)
+      : options.topic;
+  const title =
+    normalizeTextSummary(parsed.title) ||
+    fallbackTitle(options.language, options.difficulty, topic);
+  const description =
+    normalizeTextSummary(parsed.description) ||
+    fallbackDescription(options.language, options.difficulty, topic);
+  const lineHints =
+    options.language === "cpp" && options.difficulty === "easy"
+      ? sanitizeLineHints(parsed.lineHints, code)
+      : undefined;
 
   return {
     language: options.language,
     difficulty: options.difficulty,
-    topic: options.topic === "all" ? "algorithms" : options.topic,
-    filename: (parsed.filename ?? safeFilename(options.language)).trim() || safeFilename(options.language),
+    topic,
+    filename:
+      (parsed.filename ?? safeFilename(options.language)).trim() ||
+      safeFilename(options.language),
     slug: `google-${Date.now()}`,
-    code
+    code,
+    title,
+    description,
+    lineHints,
   };
 }
 
@@ -125,67 +219,82 @@ export function getStoredGoogleAiSettings(): StoredGoogleAiSettings | null {
     return null;
   }
 
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-
-  if (!raw) {
-    return null;
-  }
-
   try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
     const parsed = JSON.parse(raw) as Partial<StoredGoogleAiSettings>;
 
-    if (!parsed.apiKey) {
+    if (!parsed || typeof parsed.apiKey !== "string" || !parsed.apiKey) {
       return null;
     }
 
     return {
       apiKey: parsed.apiKey,
-      model: parsed.model || DEFAULT_MODEL
+      model:
+        typeof parsed.model === "string" && parsed.model
+          ? parsed.model
+          : DEFAULT_MODEL,
     };
   } catch {
     return null;
   }
 }
 
-export function storeGoogleAiSettings(settings: StoredGoogleAiSettings) {
+export function storeGoogleAiSettings(
+  settings: StoredGoogleAiSettings,
+): boolean {
   if (typeof window === "undefined") {
-    return;
+    return false;
   }
+  try {
+    if (!settings.apiKey) {
+      window.localStorage.removeItem(STORAGE_KEY);
+      return true;
+    }
 
-  if (!settings.apiKey) {
-    window.localStorage.removeItem(STORAGE_KEY);
-    return;
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        apiKey: settings.apiKey,
+        model: settings.model || DEFAULT_MODEL,
+      }),
+    );
+    return true;
+  } catch {
+    return false;
   }
-
-  window.localStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify({
-      apiKey: settings.apiKey,
-      model: settings.model || DEFAULT_MODEL
-    })
-  );
 }
 
-export async function generateSnippetWithGoogleAi(options: GenerateSnippetOptions) {
+export async function generateSnippetWithGoogleAi(
+  options: GenerateSnippetOptions,
+) {
   const model = options.model.trim() || DEFAULT_MODEL;
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-goog-api-key": options.apiKey
+  if (!/^[a-zA-Z0-9._-]+$/.test(model))
+    throw new Error("Use a Google AI model name such as gemini-2.5-flash.");
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+    {
+      method: "POST",
+      signal: options.signal
+        ? AbortSignal.any([options.signal, AbortSignal.timeout(20000)])
+        : AbortSignal.timeout(20000),
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": options.apiKey,
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [{ text: buildPrompt(options) }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.9,
+          responseMimeType: "application/json",
+        },
+      }),
     },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [{ text: buildPrompt(options) }]
-        }
-      ],
-      generationConfig: {
-        temperature: 0.9,
-        responseMimeType: "application/json"
-      }
-    })
-  });
+  );
 
   if (!response.ok) {
     throw new Error(`Google AI request failed (${response.status}).`);

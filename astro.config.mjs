@@ -5,7 +5,7 @@ import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  site: "https://philippeho.popnux.com",
+  site: "https://philippeho.dev",
   base: "/codebadger",
   integrations: [react()],
   vite: {

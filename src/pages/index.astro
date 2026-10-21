@@ -1,48 +1,8 @@
 ---
-import { TypingGame } from "../components/TypingGame";
+import { PracticeApp } from "../components/PracticeApp";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
-<BaseLayout>
-  <main class="relative min-h-screen overflow-hidden bg-app px-4 py-10 text-text-main">
-    <div class="pointer-events-none absolute inset-0">
-      <div class="absolute inset-x-0 top-[-12rem] mx-auto h-[28rem] w-[28rem] rounded-full bg-accent/12 blur-[120px]"></div>
-      <div class="absolute bottom-[-10rem] left-[-6rem] h-[22rem] w-[22rem] rounded-full bg-state-correct/8 blur-[120px]"></div>
-    </div>
-
-    <div class="relative mx-auto flex w-full max-w-7xl flex-col gap-6">
-      <header class="rounded-[32px] border border-white/10 bg-panel/75 p-6 shadow-panel backdrop-blur">
-        <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div class="max-w-3xl">
-            <p class="text-xs uppercase tracking-[0.42em] text-accent">CodeBadger</p>
-            <h1 class="mt-3 text-4xl font-semibold tracking-[-0.04em] text-text-main sm:text-5xl">
-              CodeBadger
-            </h1>
-          </div>
-
-          <div class="grid gap-3 text-sm text-text-muted sm:grid-cols-3 lg:max-w-xl">
-            <div class="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
-              <p class="text-[10px] uppercase tracking-[0.26em] text-text-muted">Mode</p>
-              <p class="mt-2 text-base font-semibold text-text-main">Block practice</p>
-            </div>
-            <div class="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
-              <p class="text-[10px] uppercase tracking-[0.26em] text-text-muted">Strictness</p>
-              <p class="mt-2 text-base font-semibold text-text-main">Exact match only</p>
-            </div>
-            <div class="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
-              <p class="text-[10px] uppercase tracking-[0.26em] text-text-muted">Generator</p>
-              <p class="mt-2 text-base font-semibold text-text-main">Google AI ready</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <TypingGame client:load />
-
-      <footer class="flex flex-col gap-2 px-1 text-sm text-text-muted sm:flex-row sm:items-center sm:justify-between">
-        <p>Fresh reps still come from local fallback libraries, with optional Google AI generation when you add a local API key.</p>
-        <p>Your API key stays in local browser storage and is never written into tracked repo files.</p>
-      </footer>
-    </div>
-  </main>
+<BaseLayout title="CodeBadger — Get your syntax back" description="Get your coding muscle memory back. Learn C++ fundamentals, type real code, and practice recalling it before your next interview.">
+  <PracticeApp client:load />
 </BaseLayout>

@@ -6,7 +6,26 @@ type Token = {
 };
 
 const KEYWORDS: Record<Language, Set<string>> = {
+  rust: new Set(
+    "let mut fn pub impl struct enum match if else for in while loop return break continue move ref use mod const static true false async await dyn trait where self Self as".split(
+      " ",
+    ),
+  ),
   csharp: new Set([
+    "async",
+    "await",
+    "catch",
+    "try",
+    "throw",
+    "out",
+    "record",
+    "switch",
+    "with",
+    "get",
+    "set",
+    "using",
+    "is",
+    "not",
     "bool",
     "break",
     "case",
@@ -30,7 +49,7 @@ const KEYWORDS: Record<Language, Set<string>> = {
     "true",
     "var",
     "void",
-    "while"
+    "while",
   ]),
   cpp: new Set([
     "auto",
@@ -51,9 +70,25 @@ const KEYWORDS: Record<Language, Set<string>> = {
     "struct",
     "true",
     "void",
-    "while"
+    "while",
   ]),
   typescript: new Set([
+    "async",
+    "await",
+    "catch",
+    "try",
+    "throw",
+    "typeof",
+    "instanceof",
+    "unknown",
+    "never",
+    "number",
+    "string",
+    "boolean",
+    "null",
+    "undefined",
+    "of",
+    "void",
     "as",
     "break",
     "class",
@@ -76,7 +111,7 @@ const KEYWORDS: Record<Language, Set<string>> = {
     "return",
     "true",
     "type",
-    "while"
+    "while",
   ]),
   python: new Set([
     "and",
@@ -97,11 +132,16 @@ const KEYWORDS: Record<Language, Set<string>> = {
     "range",
     "return",
     "True",
-    "while"
-  ])
+    "while",
+  ]),
 };
 
 const TYPE_NAMES: Record<Language, Set<string>> = {
+  rust: new Set(
+    "String str Vec HashMap HashSet Option Result Some None Ok Err i32 u32 usize bool f64".split(
+      " ",
+    ),
+  ),
   csharp: new Set([
     "Console",
     "Dictionary",
@@ -110,32 +150,11 @@ const TYPE_NAMES: Record<Language, Set<string>> = {
     "Math",
     "PlayerState",
     "Queue",
-    "Stack"
+    "Stack",
   ]),
-  cpp: new Set([
-    "Enemy",
-    "Player",
-    "std",
-    "string",
-    "unordered_map",
-    "vector"
-  ]),
-  typescript: new Set([
-    "Array",
-    "Map",
-    "Player",
-    "Promise",
-    "Record",
-    "Set"
-  ]),
-  python: new Set([
-    "Path",
-    "Player",
-    "dict",
-    "list",
-    "set",
-    "tuple"
-  ])
+  cpp: new Set(["Enemy", "Player", "std", "string", "unordered_map", "vector"]),
+  typescript: new Set(["Array", "Map", "Player", "Promise", "Record", "Set"]),
+  python: new Set(["Path", "Player", "dict", "list", "set", "tuple"]),
 };
 
 function isIdentifierStart(char: string) {
@@ -168,11 +187,15 @@ function readString(line: string, start: number) {
 
   return {
     value: line.slice(start, index),
-    nextIndex: index
+    nextIndex: index,
   };
 }
 
-function classifyIdentifier(language: Language, value: string, nextChar: string | undefined): SyntaxKind {
+function classifyIdentifier(
+  language: Language,
+  value: string,
+  nextChar: string | undefined,
+): SyntaxKind {
   if (KEYWORDS[language].has(value)) {
     return "keyword";
   }
@@ -197,19 +220,30 @@ function tokenizeLine(line: string, language: Language): Token[] {
 
     if (char === " " || char === "\t") {
       const start = index;
-      while (index < line.length && (line[index] === " " || line[index] === "\t")) {
+      while (
+        index < line.length &&
+        (line[index] === " " || line[index] === "\t")
+      ) {
         index += 1;
       }
       tokens.push({ value: line.slice(start, index), kind: "plain" });
       continue;
     }
 
-    if ((language !== "python" && line.startsWith("//", index)) || (language === "python" && char === "#")) {
+    if (
+      (language !== "python" && line.startsWith("//", index)) ||
+      (language === "python" && char === "#")
+    ) {
       tokens.push({ value: line.slice(index), kind: "comment" });
       break;
     }
 
-    if (char === "\"" || char === "'") {
+    if (
+      char === '"' ||
+      (char === "'" &&
+        (language !== "rust" || /^'(?:\\.|[^'\\])'/.test(line.slice(index)))) ||
+      (language === "typescript" && char === "`")
+    ) {
       const stringToken = readString(line, index);
       tokens.push({ value: stringToken.value, kind: "string" });
       index = stringToken.nextIndex;
@@ -239,7 +273,7 @@ function tokenizeLine(line: string, language: Language): Token[] {
       const value = line.slice(start, index);
       tokens.push({
         value,
-        kind: classifyIdentifier(language, value, line[lookahead])
+        kind: classifyIdentifier(language, value, line[lookahead]),
       });
       continue;
     }
@@ -252,9 +286,11 @@ function tokenizeLine(line: string, language: Language): Token[] {
 }
 
 export function tokenizeCode(code: string, language: Language) {
-  return code.split("\n").map((line) =>
-    tokenizeLine(line, language).flatMap<TokenChar>((token) =>
-      [...token.value].map((char) => ({ char, kind: token.kind }))
-    )
-  );
+  return code
+    .split("\n")
+    .map((line) =>
+      tokenizeLine(line, language).flatMap<TokenChar>((token) =>
+        [...token.value].map((char) => ({ char, kind: token.kind })),
+      ),
+    );
 }

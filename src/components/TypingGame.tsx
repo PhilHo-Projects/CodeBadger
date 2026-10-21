@@ -1,322 +1,286 @@
-import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
-
+import { useEffect, useRef, useState } from "react";
+import { fallbackSnippets } from "../data/fallbackSnippets";
+import {
+  DIFFICULTIES,
+  LANGUAGES,
+  getDifficultyLabel,
+  getLanguageLabel,
+  getTopicLabel,
+  getTopicsForLanguage,
+  normalizeTopicFilter,
+  type Language,
+  type Difficulty,
+  type TopicFilter,
+  type Snippet,
+} from "../lib/types";
+import { selectFallbackSnippet } from "../lib/snippetService";
+import {
+  generateSnippetWithGoogleAi,
+  getStoredGoogleAiSettings,
+  storeGoogleAiSettings,
+} from "../lib/googleAi";
+import type { Attempt } from "../lib/progress";
+import { TypingDrill, type DrillResult } from "./TypingDrill";
 import { ApiSettingsModal } from "./ApiSettingsModal";
-import { CompletionModal } from "./CompletionModal";
-import { ControlsBar } from "./ControlsBar";
-import { EditorWindow } from "./EditorWindow";
-import { StatsBar } from "./StatsBar";
-import { generateSnippetWithGoogleAi, getStoredGoogleAiSettings, storeGoogleAiSettings } from "../lib/googleAi";
-import { createInitialRound, selectFallbackSnippet } from "../lib/snippetService";
-import { calculateAccuracy, calculateWpm, formatElapsedMs } from "../lib/score";
-import type { Difficulty, Language, RoundState, Snippet, TopicFilter } from "../lib/types";
+import { Icon } from "./Icons";
 
-const DEFAULT_LANGUAGE: Language = "cpp";
-const DEFAULT_DIFFICULTY: Difficulty = "medium";
-const DEFAULT_TOPIC: TopicFilter = "all";
-
-function buildRound(snippet: Snippet): RoundState {
-  return createInitialRound(snippet);
-}
-
-export function TypingGame() {
-  const [language, setLanguage] = useState<Language>(DEFAULT_LANGUAGE);
-  const [difficulty, setDifficulty] = useState<Difficulty>(DEFAULT_DIFFICULTY);
-  const [topic, setTopic] = useState<TopicFilter>(DEFAULT_TOPIC);
-  const [currentSnippet, setCurrentSnippet] = useState<Snippet>(() =>
-    selectFallbackSnippet({
-      language: DEFAULT_LANGUAGE,
-      difficulty: DEFAULT_DIFFICULTY,
-      topic: DEFAULT_TOPIC
-    })
+export function TypingGame({
+  onResult,
+  initialLanguage = "cpp",
+}: {
+  onResult?: (attempt: Attempt) => void;
+  initialLanguage?: Language;
+}) {
+  const [language, setLanguage] = useState<Language>(initialLanguage);
+  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
+  const [topic, setTopic] = useState<TopicFilter>("all");
+  const [snippet, setSnippet] = useState<Snippet>(
+    () =>
+      fallbackSnippets.find(
+        (item) =>
+          item.language === initialLanguage && item.difficulty === "easy",
+      )!,
   );
-  const [round, setRound] = useState<RoundState>(() => buildRound(currentSnippet));
-  const [now, setNow] = useState(() => Date.now());
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [googleApiKey, setGoogleApiKey] = useState("");
-  const [googleModel, setGoogleModel] = useState("gemini-2.5-flash");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generatorMessage, setGeneratorMessage] = useState<string | null>(null);
-
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const errorTimeoutRef = useRef<number | null>(null);
-
+  const [round, setRound] = useState(0);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settings, setSettings] = useState({
+    apiKey: "",
+    model: "gemini-2.5-flash",
+  });
+  const [generating, setGenerating] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const request = useRef<AbortController | null>(null);
   useEffect(() => {
-    const savedSettings = getStoredGoogleAiSettings();
-
-    if (!savedSettings) {
-      return;
-    }
-
-    setGoogleApiKey(savedSettings.apiKey);
-    setGoogleModel(savedSettings.model);
+    const saved = getStoredGoogleAiSettings();
+    if (saved) setSettings(saved);
+    return () => request.current?.abort();
   }, []);
 
-  useEffect(() => {
-    textareaRef.current?.focus();
-  }, [currentSnippet.filename]);
-
-  useEffect(() => {
-    if (!round.startedAt || round.endedAt) {
-      return undefined;
-    }
-
-    const intervalId = window.setInterval(() => {
-      setNow(Date.now());
-    }, 100);
-
-    return () => window.clearInterval(intervalId);
-  }, [round.startedAt, round.endedAt]);
-
-  useEffect(() => {
-    return () => {
-      if (errorTimeoutRef.current) {
-        window.clearTimeout(errorTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const elapsedMs = round.startedAt
-    ? (round.endedAt ?? now) - round.startedAt
-    : 0;
-  const correctChars = round.typedText.length;
-  const accuracy = calculateAccuracy(correctChars, round.totalTypedChars);
-  const wpm = calculateWpm(correctChars, elapsedMs);
-
-  function focusEditor() {
-    textareaRef.current?.focus();
+  function cancel() {
+    request.current?.abort();
+    request.current = null;
+    setGenerating(false);
   }
-
-  function clearErrorSoon() {
-    if (errorTimeoutRef.current) {
-      window.clearTimeout(errorTimeoutRef.current);
-    }
-
-    errorTimeoutRef.current = window.setTimeout(() => {
-      setRound((currentRound) => ({ ...currentRound, errorIndex: null }));
-    }, 180);
+  function select(
+    nextLanguage: Language,
+    nextDifficulty: Difficulty,
+    nextTopic: TopicFilter,
+  ) {
+    cancel();
+    const normalized = normalizeTopicFilter(
+      nextLanguage,
+      nextDifficulty,
+      nextTopic,
+    );
+    setLanguage(nextLanguage);
+    setDifficulty(nextDifficulty);
+    setTopic(normalized);
+    setSnippet(
+      selectFallbackSnippet({
+        language: nextLanguage,
+        difficulty: nextDifficulty,
+        topic: normalized,
+        excludeCode: snippet.code,
+      }),
+    );
+    setRound((value) => value + 1);
+    setMessage(null);
   }
-
-  function loadSnippet(nextLanguage: Language, nextDifficulty: Difficulty, nextTopic: TopicFilter, excludeCode?: string | null) {
-    const nextSnippet = selectFallbackSnippet({
-      language: nextLanguage,
-      difficulty: nextDifficulty,
-      topic: nextTopic,
-      excludeCode
-    });
-
-    setCurrentSnippet(nextSnippet);
-    setRound(buildRound(nextSnippet));
-    setNow(Date.now());
-  }
-
-  function handleSelectionChange(nextLanguage: Language, nextDifficulty: Difficulty, nextTopic: TopicFilter) {
-    setGeneratorMessage(null);
-    loadSnippet(nextLanguage, nextDifficulty, nextTopic, currentSnippet.code);
-  }
-
-  async function handleGenerateSnippet() {
-    if (!googleApiKey || isGenerating) {
-      return;
-    }
-
-    setIsGenerating(true);
-    setGeneratorMessage(null);
-
+  async function generate() {
+    if (!settings.apiKey || generating) return;
+    const controller = new AbortController();
+    request.current = controller;
+    setGenerating(true);
+    setMessage(null);
     try {
-      const generatedSnippet = await generateSnippetWithGoogleAi({
-        apiKey: googleApiKey,
-        model: googleModel,
+      const generated = await generateSnippetWithGoogleAi({
+        ...settings,
         language,
         difficulty,
         topic,
-        previousSnippet: currentSnippet.code
+        previousSnippet: snippet.code,
+        signal: controller.signal,
       });
-
-      setCurrentSnippet(generatedSnippet);
-      setRound(buildRound(generatedSnippet));
-      setNow(Date.now());
-      setGeneratorMessage(`Generated via ${googleModel}.`);
+      if (request.current !== controller) return;
+      setSnippet(generated);
+      setRound((value) => value + 1);
+      setMessage("Fresh drill ready. Generated code has not been compiled.");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Google AI generation failed.";
-      setGeneratorMessage(message);
+      if (request.current !== controller || controller.signal.aborted) return;
+      const detail =
+        error instanceof Error ? error.message : "Generation failed.";
+      setMessage(`${detail} The local library is still available.`);
     } finally {
-      setIsGenerating(false);
+      if (request.current === controller) {
+        request.current = null;
+        setGenerating(false);
+      }
     }
   }
-
-  function handleSaveSettings(apiKey: string, model: string) {
-    setGoogleApiKey(apiKey);
-    setGoogleModel(model);
-    storeGoogleAiSettings({ apiKey, model });
-    setGeneratorMessage(apiKey ? "Google AI key saved locally on this device." : "Google AI key removed from local storage.");
-  }
-
-  function markTypo(timestamp: number, errorIndex: number) {
-    setRound((currentRound) => ({
-      ...currentRound,
-      startedAt: currentRound.startedAt ?? timestamp,
-      totalTypedChars: currentRound.totalTypedChars + 1,
-      typoCount: currentRound.typoCount + 1,
-      errorIndex
-    }));
-    clearErrorSoon();
-  }
-
-  function acceptInput(input: string, timestamp: number) {
-    setRound((currentRound) => {
-      const nextTypedText = currentRound.typedText + input;
-      const isComplete = nextTypedText === currentRound.targetText;
-
-      return {
-        ...currentRound,
-        typedText: nextTypedText,
-        totalTypedChars: currentRound.totalTypedChars + input.length,
-        startedAt: currentRound.startedAt ?? timestamp,
-        endedAt: isComplete ? timestamp : currentRound.endedAt,
-        isComplete,
-        errorIndex: null
-      };
+  const pool = fallbackSnippets.filter(
+    (item) =>
+      item.language === language &&
+      item.difficulty === difficulty &&
+      (topic === "all" || item.topic === topic),
+  );
+  function complete(result: DrillResult) {
+    onResult?.({
+      ...result,
+      lessonId: `${language}:${snippet.slug}`,
+      mode: "quick",
+      assisted: false,
+      passed: true,
+      at: Date.now(),
     });
   }
 
-  function handleCharacterInput(input: string) {
-    if (round.isComplete || input.length === 0) {
-      return;
-    }
-
-    const timestamp = Date.now();
-    const expectedChunk = round.targetText.slice(round.typedText.length, round.typedText.length + input.length);
-
-    if (expectedChunk === input) {
-      acceptInput(input, timestamp);
-      return;
-    }
-
-    markTypo(timestamp, round.typedText.length);
-  }
-
-  function handleKeyDown(event: ReactKeyboardEvent<HTMLTextAreaElement>) {
-    if (event.ctrlKey || event.altKey || event.metaKey) {
-      return;
-    }
-
-    if (event.key === "Backspace") {
-      event.preventDefault();
-
-      if (round.isComplete || round.typedText.length === 0) {
-        return;
-      }
-
-      setRound((currentRound) => ({
-        ...currentRound,
-        typedText: currentRound.typedText.slice(0, -1),
-        endedAt: null,
-        isComplete: false,
-        errorIndex: null
-      }));
-      return;
-    }
-
-    if (event.key === "Tab") {
-      event.preventDefault();
-      handleCharacterInput("    ");
-      return;
-    }
-
-    if (event.key === "Enter") {
-      event.preventDefault();
-      handleCharacterInput("\n");
-      return;
-    }
-
-    if (event.key.length === 1) {
-      event.preventDefault();
-      handleCharacterInput(event.key);
-    }
-  }
-
   return (
-    <div className="space-y-5">
-      <ControlsBar
-        language={language}
-        difficulty={difficulty}
-        topic={topic}
-        canAdvance={round.isComplete}
-        hasGoogleApiKey={Boolean(googleApiKey)}
-        isGenerating={isGenerating}
-        generatorMessage={generatorMessage}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-        onGenerateSnippet={handleGenerateSnippet}
-        onLanguageChange={(nextLanguage) => {
-          setLanguage(nextLanguage);
-          handleSelectionChange(nextLanguage, difficulty, topic);
-        }}
-        onDifficultyChange={(nextDifficulty) => {
-          setDifficulty(nextDifficulty);
-          handleSelectionChange(language, nextDifficulty, topic);
-        }}
-        onTopicChange={(nextTopic) => {
-          setTopic(nextTopic);
-          handleSelectionChange(language, difficulty, nextTopic);
-        }}
-        onNextSnippet={() => loadSnippet(language, difficulty, topic, currentSnippet.code)}
-      />
-
-      <div className="relative">
-        <textarea
-          ref={textareaRef}
-          value={round.typedText}
-          onChange={() => undefined}
-          onKeyDown={handleKeyDown}
-          onPaste={(event) => event.preventDefault()}
-          onDrop={(event) => event.preventDefault()}
-          spellCheck={false}
-          autoCapitalize="off"
-          autoComplete="off"
-          autoCorrect="off"
-          aria-label="Hidden typing input"
-          className="pointer-events-none absolute left-0 top-0 h-px w-px opacity-0"
-        />
-
-        <EditorWindow
-          code={round.targetText}
-          typedText={round.typedText}
-          language={currentSnippet.language}
-          filename={currentSnippet.filename}
-          isComplete={round.isComplete}
-          errorIndex={round.errorIndex}
-          onRequestFocus={focusEditor}
-        />
-
-        <CompletionModal
-          open={round.isComplete}
-          accuracy={accuracy}
-          wpm={wpm}
-          typoCount={round.typoCount}
-          elapsedLabel={formatElapsedMs(elapsedMs)}
-          filename={currentSnippet.filename}
-          onNextSnippet={() => loadSnippet(language, difficulty, topic, currentSnippet.code)}
-        />
+    <div className="quick-practice">
+      <div className="quick-controls">
+        <label className="select-label">
+          Language
+          <select
+            value={language}
+            onChange={(event) =>
+              select(event.target.value as Language, difficulty, topic)
+            }
+          >
+            {LANGUAGES.map((value) => (
+              <option key={value} value={value}>
+                {getLanguageLabel(value)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="select-label">
+          Difficulty
+          <select
+            value={difficulty}
+            onChange={(event) =>
+              select(language, event.target.value as Difficulty, topic)
+            }
+          >
+            {DIFFICULTIES.map((value) => (
+              <option key={value} value={value}>
+                {getDifficultyLabel(language, value)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="select-label">
+          Topic
+          <select
+            value={topic}
+            onChange={(event) =>
+              select(language, difficulty, event.target.value as TopicFilter)
+            }
+          >
+            <option value="all">All topics</option>
+            {getTopicsForLanguage(language, difficulty).map((value) => (
+              <option key={value} value={value}>
+                {getTopicLabel(value)}
+              </option>
+            ))}
+          </select>
+        </label>
+        <button
+          className="button button-secondary"
+          onClick={() => select(language, difficulty, topic)}
+        >
+          <Icon name="reset" size={15} />
+          {pool.length <= 1 ? "Restart" : "Skip drill"}
+        </button>
       </div>
-
-      <StatsBar
-        wpm={wpm}
-        accuracy={accuracy}
-        typoCount={round.typoCount}
-        elapsedLabel={formatElapsedMs(elapsedMs)}
-        characterProgress={`${round.typedText.length}/${round.targetText.length}`}
-      />
-
-      <div className="rounded-[24px] border border-white/8 bg-white/4 px-4 py-3 text-sm text-text-muted">
-        Click the editor and type directly into the code. Paste is blocked, <span className="font-semibold text-text-main">Tab</span> inserts four spaces, and completion only lands on an exact match.
+      <div className="snippet-heading">
+        <div>
+          <span className="eyebrow">
+            {getLanguageLabel(snippet.language)} /{" "}
+            {getTopicLabel(snippet.topic)}
+          </span>
+          <h2>{snippet.title}</h2>
+          <p>{snippet.description}</p>
+        </div>
+        <span className="small-badge">
+          {pool.length} {pool.length === 1 ? "local drill" : "local drills"}
+        </span>
       </div>
-
+      {topic !== "all" && snippet.topic !== topic && (
+        <p className="notice" role="status">
+          No local {getTopicLabel(topic).toLowerCase()} drills at this
+          difficulty yet. Showing {getTopicLabel(snippet.topic).toLowerCase()}{" "}
+          instead.
+        </p>
+      )}
+      <TypingDrill
+        key={`${round}:${snippet.slug}`}
+        code={snippet.code}
+        filename={snippet.filename}
+        language={snippet.language}
+        onComplete={complete}
+        onNext={() => select(language, difficulty, topic)}
+        nextLabel={pool.length <= 1 ? "Repeat drill" : "Next drill"}
+      />
+      {snippet.lineHints && (
+        <details className="snippet-hints">
+          <summary>Read the code notes</summary>
+          {snippet.lineHints.map((hint, index) => (
+            <p key={index}>
+              <span>Line {hint.line}</span>
+              {hint.text}
+            </p>
+          ))}
+        </details>
+      )}
+      <div className="generator-strip">
+        <div>
+          <Icon name="bolt" size={16} />
+          <span>Want a fresh variation?</span>
+        </div>
+        <div className="inline-actions">
+          <button
+            className="button button-quiet"
+            onClick={() => setSettingsOpen(true)}
+          >
+            {settings.apiKey ? "AI settings" : "Add Google AI key"}
+          </button>
+          {settings.apiKey && (
+            <button
+              className="button button-secondary"
+              disabled={generating}
+              onClick={generate}
+            >
+              {generating ? "Generating…" : "Generate drill"}
+            </button>
+          )}
+          {generating && (
+            <button className="button button-quiet" onClick={cancel}>
+              Cancel
+            </button>
+          )}
+        </div>
+      </div>
+      {message && (
+        <p className="notice" role="status">
+          {message}
+        </p>
+      )}
       <ApiSettingsModal
-        open={isSettingsOpen}
-        initialApiKey={googleApiKey}
-        initialModel={googleModel}
-        onClose={() => setIsSettingsOpen(false)}
-        onSave={handleSaveSettings}
+        open={settingsOpen}
+        initialApiKey={settings.apiKey}
+        initialModel={settings.model}
+        onClose={() => setSettingsOpen(false)}
+        onSave={(apiKey, model) => {
+          cancel();
+          setSettings({ apiKey, model });
+          const saved = storeGoogleAiSettings({ apiKey, model });
+          setMessage(
+            saved
+              ? apiKey
+                ? "Settings saved in this browser."
+                : "Stored key removed."
+              : "Browser storage is unavailable. Settings will last for this visit.",
+          );
+        }}
       />
     </div>
   );

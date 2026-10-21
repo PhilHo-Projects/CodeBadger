@@ -12,7 +12,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "check": "astro check",
-    "test": "vitest run"
+    "test": "vitest run",
+    "verify:curriculum": "node scripts/verify-curriculum.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^5.0.0",
